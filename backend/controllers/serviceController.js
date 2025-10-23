@@ -1,0 +1,105 @@
+import { query } from "../config/db.js";
+
+// Create a new service request (auto-assign worker)
+export const createRequest = async (req, res) => {
+  try {
+    const { user_id, category, description, location } = req.body;
+
+    if (!user_id || !category || !description || !location)
+      return res.status(400).json({ message: "All fields are required" });
+
+    //  Find available worker with same skill category
+    const [workers] = await query(
+      "SELECT id FROM workers WHERE skill_category = ? AND availability = 'Available' ORDER BY rating DESC LIMIT 1",
+      [category]
+    );
+
+    let assignedWorkerId = null;
+    let status = "Pending";
+
+    if (workers.length > 0) {
+      assignedWorkerId = workers[0].id;
+      status = "Assigned";
+
+      // Set worker to Busy
+      await query("UPDATE workers SET availability = 'Busy' WHERE id = ?", [assignedWorkerId]);
+    }
+
+    // Insert service request
+    const [result] = await query(
+      "INSERT INTO service_requests (user_id, category, description, location, status, assigned_worker_id) VALUES (?, ?, ?, ?, ?, ?)",
+      [user_id, category, description, location, status, assignedWorkerId]
+    );
+
+    res.status(201).json({
+      message: "Service request created successfully",
+      request_id: result.insertId,
+      assigned_worker_id: assignedWorkerId,
+      status,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get all requests by a user
+export const getUserRequests = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await query(
+      `SELECT sr.*, w.name AS worker_name, w.skill_category 
+       FROM service_requests sr 
+       LEFT JOIN workers w ON sr.assigned_worker_id = w.id 
+       WHERE sr.user_id = ? ORDER BY sr.created_at DESC`,
+      [id]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Get all requests for a worker
+export const getWorkerRequests = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await query(
+      `SELECT sr.*, u.name AS user_name, u.email AS user_email
+       FROM service_requests sr 
+       JOIN users u ON sr.user_id = u.id
+       WHERE sr.assigned_worker_id = ? ORDER BY sr.created_at DESC`,
+      [id]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Mark a request as completed (and free worker)
+export const completeRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find assigned worker
+    const [reqData] = await query(
+      "SELECT assigned_worker_id FROM service_requests WHERE id = ?",
+      [id]
+    );
+    if (!reqData.length) return res.status(404).json({ message: "Request not found" });
+
+    const workerId = reqData[0].assigned_worker_id;
+
+    // Mark request completed
+    await query("UPDATE service_requests SET status = 'Completed' WHERE id = ?", [id]);
+
+    // Make worker available again
+    if (workerId)
+      await query("UPDATE workers SET availability = 'Available' WHERE id = ?", [workerId]);
+
+    res.json({ message: "Request marked as completed" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
