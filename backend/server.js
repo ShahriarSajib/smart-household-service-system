@@ -2,12 +2,12 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { connectDB } from "./config/db.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import ratingRoutes from "./routes/ratingRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import workerRoutes from "./routes/workerRoutes.js";
-
 dotenv.config();
 const app = express();
 
@@ -18,6 +18,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/requests", serviceRoutes);
 app.use("/api/ratings", ratingRoutes);
 app.use("/api/workers", workerRoutes);
+app.use(errorHandler);
 connectDB();
 
 app.get("/", (req, res) => res.send("FixMate Backend Running 🚀"));
