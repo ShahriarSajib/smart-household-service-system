@@ -1,6 +1,6 @@
 import { query } from "../config/db.js";
 
-// ✅ Get worker profile
+// Get worker profile
 export const getWorkerProfile = async (req, res) => {
   try {
     const { id } = req.params;
@@ -15,7 +15,7 @@ export const getWorkerProfile = async (req, res) => {
   }
 };
 
-// ✅ Update worker availability
+// Update worker availability
 export const updateAvailability = async (req, res) => {
   try {
     const { id } = req.params;
@@ -35,7 +35,7 @@ export const updateAvailability = async (req, res) => {
   }
 };
 
-// ✅ Get assigned service requests
+// Get assigned service requests
 export const getWorkerRequests = async (req, res) => {
   try {
     const { id } = req.params;
@@ -55,7 +55,7 @@ export const getWorkerRequests = async (req, res) => {
   }
 };
 
-// ✅ Get worker ratings
+// Get worker ratings
 export const getWorkerRatings = async (req, res) => {
   try {
     const { id } = req.params;

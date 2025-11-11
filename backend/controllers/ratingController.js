@@ -48,7 +48,7 @@ export const addRating = async (req, res) => {
 
     res.status(201).json({ message: "Rating submitted successfully" });
   } catch (err) {
-    console.error("❌ Rating Error:", err);
+    console.error("Rating Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

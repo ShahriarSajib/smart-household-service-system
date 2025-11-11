@@ -10,9 +10,9 @@ export const connectDB = async () => {
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
     });
-    console.log("✅ MySQL connected successfully");
+    console.log("MySQL connected successfully");
     global.db = connection;
   } catch (error) {
-    console.error("❌ Database connection failed:", error.message);
+    console.error("Database connection failed:", error.message);
   }
 };

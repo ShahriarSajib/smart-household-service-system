@@ -1,17 +1,27 @@
 import { query } from "../config/db.js";
 
-// Create a new service request (auto-assign worker)
 export const createRequest = async (req, res) => {
   try {
-    const { user_id, category, description, location } = req.body;
+    const user_id = req.user.id; // from token
+    const { category, description, location, latitude, longitude } = req.body;
 
-    if (!user_id || !category || !description || !location)
+    if (!category || !description || !location || !latitude || !longitude)
       return res.status(400).json({ message: "All fields are required" });
 
-    //  Find available worker with same skill category
+    // Find nearest available worker in same category
     const [workers] = await query(
-      "SELECT id FROM workers WHERE skill_category = ? AND availability = 'Available' ORDER BY rating DESC LIMIT 1",
-      [category]
+      `SELECT id, latitude, longitude,
+              (6371 * ACOS(
+                COS(RADIANS(?)) * COS(RADIANS(latitude)) *
+                COS(RADIANS(longitude) - RADIANS(?)) +
+                SIN(RADIANS(?)) * SIN(RADIANS(latitude))
+              )) AS distance
+       FROM workers
+       WHERE skill_category = ? AND availability = 'Available'
+       HAVING distance IS NOT NULL
+       ORDER BY distance ASC, rating DESC
+       LIMIT 1`,
+      [latitude, longitude, latitude, category]
     );
 
     let assignedWorkerId = null;
@@ -20,15 +30,15 @@ export const createRequest = async (req, res) => {
     if (workers.length > 0) {
       assignedWorkerId = workers[0].id;
       status = "Assigned";
-
-      // Set worker to Busy
       await query("UPDATE workers SET availability = 'Busy' WHERE id = ?", [assignedWorkerId]);
     }
 
-    // Insert service request
+    //Save service request
     const [result] = await query(
-      "INSERT INTO service_requests (user_id, category, description, location, status, assigned_worker_id) VALUES (?, ?, ?, ?, ?, ?)",
-      [user_id, category, description, location, status, assignedWorkerId]
+      `INSERT INTO service_requests 
+        (user_id, category, description, location, latitude, longitude, status, assigned_worker_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [user_id, category, description, location, latitude, longitude, status, assignedWorkerId]
     );
 
     res.status(201).json({
@@ -38,10 +48,11 @@ export const createRequest = async (req, res) => {
       status,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Create request error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Get all requests by a user
 export const getUserRequests = async (req, res) => {

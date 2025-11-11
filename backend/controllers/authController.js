@@ -5,7 +5,7 @@ dotenv.config();
 
 const SALT = 10;
 
-// ✅ Register User
+//Register User
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -29,10 +29,10 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// ✅ Register Worker
+// Register Worker
 export const registerWorker = async (req, res) => {
   try {
-    const { name, email, password, skill_category, location } = req.body;
+    const { name, email, password, skill_category, location, latitude, longitude } = req.body;
 
     if (!name || !email || !password || !skill_category)
       return res.status(400).json({ message: "All fields required" });
@@ -42,10 +42,13 @@ export const registerWorker = async (req, res) => {
       return res.status(400).json({ message: "Worker already exists" });
 
     const hashed = await bcrypt.hash(password, SALT);
-    await global.db.query(
-      "INSERT INTO workers (name, email, password_hash, skill_category, location, availability) VALUES (?, ?, ?, ?, ?, 'Offline')",
-      [name, email, hashed, skill_category, location]
-    );
+   await global.db.query(
+  `INSERT INTO workers 
+     (name, email, password_hash, skill_category, location, availability, latitude, longitude)
+   VALUES (?, ?, ?, ?, ?, 'Offline', ?, ?)`,
+  [name, email, hashed, skill_category, location, latitude, longitude]
+);
+
 
     res.status(201).json({ message: "Worker registered successfully (Pending Admin Approval)" });
   } catch (err) {
@@ -53,7 +56,7 @@ export const registerWorker = async (req, res) => {
   }
 };
 
-// ✅ Login (both user & worker)
+// Login (both user & worker)
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;

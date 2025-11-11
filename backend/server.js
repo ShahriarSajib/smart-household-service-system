@@ -19,9 +19,10 @@ app.use("/api/requests", serviceRoutes);
 app.use("/api/ratings", ratingRoutes);
 app.use("/api/workers", workerRoutes);
 app.use(errorHandler);
-connectDB();
 
-app.get("/", (req, res) => res.send("FixMate Backend Running 🚀"));
+app.get("/", (req, res) => res.send("FixMate Backend Running"));
+
+connectDB();
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

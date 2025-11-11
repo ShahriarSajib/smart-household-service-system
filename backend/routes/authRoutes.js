@@ -7,7 +7,7 @@ router.post("/register/user", registerUser);
 router.post("/register/worker", registerWorker);
 router.post("/login", login);
 router.get("/test", (req, res) => {
-  res.send("Auth route working ✅");
+  res.send("Auth route working");
 });
 
 export default router;
