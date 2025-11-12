@@ -1,6 +1,7 @@
 {
   "name": "webtech",
   "version": "1.0.0",
+  "type": "module",
   "description": "Web platform connecting households with verified service providers",
   "main": "server.js",
   "scripts": {

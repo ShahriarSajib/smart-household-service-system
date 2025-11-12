@@ -1,6 +1,6 @@
 import { query } from "../config/db.js";
 
-// Add a rating (user → worker)
+// Add a rating (user to worker)
 export const addRating = async (req, res) => {
   try {
     const { request_id, rater_id, ratee_id, score, comment } = req.body;

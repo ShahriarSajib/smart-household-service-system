@@ -1,11 +1,13 @@
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import { query } from "../config/db.js";
+
 dotenv.config();
 
 const SALT = 10;
 
-//Register User
+// Register User
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -13,18 +15,19 @@ export const registerUser = async (req, res) => {
     if (!name || !email || !password)
       return res.status(400).json({ message: "All fields required" });
 
-    const [existing] = await global.db.query("SELECT * FROM users WHERE email = ?", [email]);
+    const [existing] = await query("SELECT * FROM users WHERE email = ?", [email]);
     if (existing.length > 0)
       return res.status(400).json({ message: "User already exists" });
 
     const hashed = await bcrypt.hash(password, SALT);
-    await global.db.query(
+    await query(
       "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'user')",
       [name, email, hashed]
     );
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
+    console.error("Register user error:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -37,41 +40,47 @@ export const registerWorker = async (req, res) => {
     if (!name || !email || !password || !skill_category)
       return res.status(400).json({ message: "All fields required" });
 
-    const [existing] = await global.db.query("SELECT * FROM workers WHERE email = ?", [email]);
+    const [existing] = await query("SELECT * FROM workers WHERE email = ?", [email]);
     if (existing.length > 0)
       return res.status(400).json({ message: "Worker already exists" });
 
     const hashed = await bcrypt.hash(password, SALT);
-   await global.db.query(
-  `INSERT INTO workers 
-     (name, email, password_hash, skill_category, location, availability, latitude, longitude)
-   VALUES (?, ?, ?, ?, ?, 'Offline', ?, ?)`,
-  [name, email, hashed, skill_category, location, latitude, longitude]
-);
+    await query(
+      `INSERT INTO workers 
+        (name, email, password_hash, skill_category, location, availability, latitude, longitude)
+       VALUES (?, ?, ?, ?, ?, 'Offline', ?, ?)`,
+      [name, email, hashed, skill_category, location, latitude, longitude]
+    );
 
-
-    res.status(201).json({ message: "Worker registered successfully (Pending Admin Approval)" });
+    res.status(201).json({
+      message: "Worker registered successfully (Pending Admin Approval)"
+    });
   } catch (err) {
+    console.error("Register worker error:", err);
     res.status(500).json({ message: err.message });
   }
 };
 
-// Login (both user & worker)
+//Login (user or worker)
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const [userRows] = await global.db.query("SELECT * FROM users WHERE email = ?", [email]);
-    const [workerRows] = await global.db.query("SELECT * FROM workers WHERE email = ?", [email]);
+    const [userRows] = await query("SELECT * FROM users WHERE email = ?", [email]);
+    const [workerRows] = await query("SELECT * FROM workers WHERE email = ?", [email]);
 
     const account = userRows[0] || workerRows[0];
-    if (!account) return res.status(404).json({ message: "Account not found" });
+    if (!account)
+      return res.status(404).json({ message: "Account not found" });
 
     const match = await bcrypt.compare(password, account.password_hash);
-    if (!match) return res.status(400).json({ message: "Invalid credentials" });
+    if (!match)
+      return res.status(400).json({ message: "Invalid credentials" });
 
-    const role = userRows[0] ? account.role : "worker";
-    const token = jwt.sign({ id: account.id, role }, process.env.JWT_SECRET, { expiresIn: "8h" });
+    const role = userRows.length > 0 ? account.role : "worker";
+    const token = jwt.sign({ id: account.id, role }, process.env.JWT_SECRET, {
+      expiresIn: "8h",
+    });
 
     res.json({
       message: "Login successful",
@@ -79,6 +88,7 @@ export const login = async (req, res) => {
       user: { id: account.id, name: account.name, email: account.email, role },
     });
   } catch (err) {
+    console.error("Login error:", err);
     res.status(500).json({ message: err.message });
   }
 };
