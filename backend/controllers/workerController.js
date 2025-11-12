@@ -1,15 +1,30 @@
 import { query } from "../config/db.js";
 
-// Get worker profile
+// Example: GET /api/workers/5?lat=23.7806&lng=90.2794
 export const getWorkerProfile = async (req, res) => {
   try {
     const { id } = req.params;
-    const [worker] = await query("SELECT * FROM workers WHERE id = ?", [id]);
+    const { lat, lng } = req.query;
 
+    const [worker] = await query("SELECT * FROM workers WHERE id = ?", [id]);
     if (!worker.length)
       return res.status(404).json({ message: "Worker not found" });
 
-    res.json(worker[0]);
+    let workerData = worker[0];
+
+    if (lat && lng && workerData.latitude && workerData.longitude) {
+      const [distanceResult] = await query(
+        `SELECT (6371 * ACOS(
+          COS(RADIANS(?)) * COS(RADIANS(?)) *
+          COS(RADIANS(?) - RADIANS(?)) +
+          SIN(RADIANS(?)) * SIN(RADIANS(?))
+        )) AS distance`,
+        [lat, workerData.latitude, workerData.longitude, lng, lat, workerData.latitude]
+      );
+      workerData.distance_km = distanceResult[0].distance.toFixed(2);
+    }
+
+    res.json(workerData);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -69,6 +84,56 @@ export const getWorkerRatings = async (req, res) => {
     );
 
     res.json(ratings);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+//Update worker location (latitude, longitude)
+export const updateWorkerLocation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { latitude, longitude } = req.body;
+
+    if (!latitude || !longitude)
+      return res.status(400).json({ message: "Latitude and longitude are required" });
+
+    await query("UPDATE workers SET latitude = ?, longitude = ? WHERE id = ?", [
+      latitude,
+      longitude,
+      id,
+    ]);
+
+    res.json({ message: "Worker location updated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+//Get nearby available workers (within radius)
+export const getNearbyWorkers = async (req, res) => {
+  try {
+    const { lat, lng, radius = 5 } = req.query; // radius in KM
+
+    if (!lat || !lng)
+      return res.status(400).json({ message: "Latitude and longitude are required" });
+
+    const [workers] = await query(
+      `SELECT id, name, skill_category, availability, rating, latitude, longitude,
+        (6371 * ACOS(
+          COS(RADIANS(?)) * COS(RADIANS(latitude)) *
+          COS(RADIANS(longitude) - RADIANS(?)) +
+          SIN(RADIANS(?)) * SIN(RADIANS(latitude))
+        )) AS distance
+      FROM workers
+      WHERE availability = 'Available'
+      HAVING distance <= ?
+      ORDER BY distance ASC
+      LIMIT 20`,
+      [lat, lng, lat, radius]
+    );
+
+    res.json(workers);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

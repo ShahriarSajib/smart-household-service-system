@@ -1,15 +1,18 @@
 import express from "express";
-import { verifyToken } from "../middleware/authMiddleware.js";
 import {
+  getNearbyWorkers,
   getWorkerProfile,
-  updateAvailability,
-  getWorkerRequests,
   getWorkerRatings,
+  getWorkerRequests,
+  updateAvailability,
+  updateWorkerLocation,
 } from "../controllers/workerController.js";
+import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Protected routes
+router.get("/nearby", verifyToken, getNearbyWorkers);        
+router.put("/:id/location", verifyToken, updateWorkerLocation); 
 router.get("/:id", verifyToken, getWorkerProfile);
 router.put("/:id/status", verifyToken, updateAvailability);
 router.get("/:id/requests", verifyToken, getWorkerRequests);
