@@ -1,6 +1,25 @@
-// Simple logger wrapper (expandable)
-export const info = (...args) => console.log("[INFO]", ...args);
-export const warn = (...args) => console.warn("[WARN]", ...args);
-export const err = (...args) => console.error("[ERROR]", ...args);
+// utils/logger.js
+import winston from "winston";
 
-export default { info, warn, err };
+const logger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ filename: "logs/error.log", level: "error" }),
+    new winston.transports.File({ filename: "logs/combined.log" }),
+  ],
+});
+
+// Show logs in console only in dev
+if (process.env.NODE_ENV !== "production") {
+  logger.add(
+    new winston.transports.Console({
+      format: winston.format.simple(),
+    })
+  );
+}
+
+export default logger;

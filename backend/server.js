@@ -11,6 +11,8 @@ import serviceRoutes from "./routes/serviceRoutes.js";
 import workerRoutes from "./routes/workerRoutes.js";
 
 import mailer from "./utils/mailer.js";
+import logger from "./utils/logger.js"; 
+import requestLogger from "./middleware/requestLogger.js";
 
 dotenv.config();
 
@@ -20,24 +22,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Log all API requests
+app.use(requestLogger);
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/requests", serviceRoutes);
 app.use("/api/ratings", ratingRoutes);
 app.use("/api/workers", workerRoutes);
-app.use(errorHandler);
 
 // Root route
 app.get("/", (req, res) => res.send("FixMate Backend Running"));
+
+// Place error handler LAST
+app.use(errorHandler);
 
 // Test DB Connection
 const testDB = async () => {
   try {
     await pool.query("SELECT 1");
-    console.log("Database connected successfully");
+    logger.info("Database connected successfully");
   } catch (err) {
-    console.error("Database connection failed:", err.message);
+    logger.error("Database connection failed: " + err.message);
   }
 };
 testDB();
@@ -46,13 +53,13 @@ testDB();
 const testMailer = async () => {
   try {
     await mailer.transporter.verify();
-    console.log("SMTP transporter ready");
+    logger.info("SMTP transporter ready");
   } catch (err) {
-    console.warn("SMTP transporter verification failed:", err.message);
+    logger.warn("SMTP transporter verification failed: " + err.message);
   }
 };
 testMailer();
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
