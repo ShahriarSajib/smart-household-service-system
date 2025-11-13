@@ -11,8 +11,8 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/nearby", verifyToken, getNearbyWorkers);        
-router.put("/:id/location", verifyToken, updateWorkerLocation); 
+router.get("/nearby", verifyToken, getNearbyWorkers);
+router.put("/:id/location", verifyToken, updateWorkerLocation);
 router.get("/:id", verifyToken, getWorkerProfile);
 router.put("/:id/status", verifyToken, updateAvailability);
 router.get("/:id/requests", verifyToken, getWorkerRequests);

@@ -1,4 +1,5 @@
 import { query } from "../config/db.js";
+import { error, success } from "../utils/responseHelper.js";
 
 // Example: GET /api/workers/5?lat=23.7806&lng=90.2794
 export const getWorkerProfile = async (req, res) => {
@@ -8,7 +9,7 @@ export const getWorkerProfile = async (req, res) => {
 
     const [worker] = await query("SELECT * FROM workers WHERE id = ?", [id]);
     if (!worker.length)
-      return res.status(404).json({ message: "Worker not found" });
+      return res.status(404).json(error("Worker not found"));
 
     let workerData = worker[0];
 
@@ -26,7 +27,7 @@ export const getWorkerProfile = async (req, res) => {
 
     res.json(workerData);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json(error(err.message));
   }
 };
 
@@ -37,16 +38,16 @@ export const updateAvailability = async (req, res) => {
     const { availability } = req.body;
 
     if (!["Available", "Busy", "Offline"].includes(availability))
-      return res.status(400).json({ message: "Invalid availability status" });
+      return res.status(400).json(error("Invalid availability status"));
 
     await query("UPDATE workers SET availability = ? WHERE id = ?", [
       availability,
       id,
     ]);
 
-    res.json({ message: `Worker status updated to ${availability}` });
+    res.json(success(`Worker status updated to ${availability}`));
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json(error(err.message));
   }
 };
 
@@ -66,7 +67,7 @@ export const getWorkerRequests = async (req, res) => {
 
     res.json(requests);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json(error(err.message));
   }
 };
 
@@ -85,7 +86,7 @@ export const getWorkerRatings = async (req, res) => {
 
     res.json(ratings);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json(error(err.message));
   }
 };
 
@@ -96,7 +97,7 @@ export const updateWorkerLocation = async (req, res) => {
     const { latitude, longitude } = req.body;
 
     if (!latitude || !longitude)
-      return res.status(400).json({ message: "Latitude and longitude are required" });
+      return res.status(400).json(error("Latitude and longitude are required"));
 
     await query("UPDATE workers SET latitude = ?, longitude = ? WHERE id = ?", [
       latitude,
@@ -104,9 +105,9 @@ export const updateWorkerLocation = async (req, res) => {
       id,
     ]);
 
-    res.json({ message: "Worker location updated successfully" });
+    res.json(success("Worker location updated successfully"));
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json(error(err.message));
   }
 };
 
@@ -116,7 +117,7 @@ export const getNearbyWorkers = async (req, res) => {
     const { lat, lng, radius = 5 } = req.query; // radius in KM
 
     if (!lat || !lng)
-      return res.status(400).json({ message: "Latitude and longitude are required" });
+      return res.status(400).json(error("Latitude and longitude are required"));
 
     const [workers] = await query(
       `SELECT id, name, skill_category, availability, rating, latitude, longitude,
@@ -135,6 +136,6 @@ export const getNearbyWorkers = async (req, res) => {
 
     res.json(workers);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json(error(err.message));
   }
 };

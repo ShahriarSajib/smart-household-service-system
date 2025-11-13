@@ -1,12 +1,14 @@
 import { query } from "../config/db.js";
+import { error, success } from "../utils/responseHelper.js";
 
+// Create request
 export const createRequest = async (req, res) => {
   try {
     const user_id = req.user.id; // from token
     const { category, description, location, latitude, longitude } = req.body;
 
     if (!category || !description || !location || !latitude || !longitude)
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json(error("All fields are required"));
 
     // Find nearest available worker in same category
     const [workers] = await query(
@@ -42,17 +44,16 @@ export const createRequest = async (req, res) => {
     );
 
     res.status(201).json({
-      message: "Service request created successfully",
+      ...success("Service request created successfully"),
       request_id: result.insertId,
       assigned_worker_id: assignedWorkerId,
       status,
     });
   } catch (err) {
     console.error("Create request error:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json(error("Server error"));
   }
 };
-
 
 // Get all requests by a user
 export const getUserRequests = async (req, res) => {
@@ -67,7 +68,7 @@ export const getUserRequests = async (req, res) => {
     );
     res.json(rows);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json(error(err.message));
   }
 };
 
@@ -84,7 +85,7 @@ export const getWorkerRequests = async (req, res) => {
     );
     res.json(rows);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json(error(err.message));
   }
 };
 
@@ -98,7 +99,7 @@ export const completeRequest = async (req, res) => {
       "SELECT assigned_worker_id FROM service_requests WHERE id = ?",
       [id]
     );
-    if (!reqData.length) return res.status(404).json({ message: "Request not found" });
+    if (!reqData.length) return res.status(404).json(error("Request not found"));
 
     const workerId = reqData[0].assigned_worker_id;
 
@@ -109,8 +110,8 @@ export const completeRequest = async (req, res) => {
     if (workerId)
       await query("UPDATE workers SET availability = 'Available' WHERE id = ?", [workerId]);
 
-    res.json({ message: "Request marked as completed" });
+    res.json(success("Request marked as completed"));
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json(error(err.message));
   }
 };

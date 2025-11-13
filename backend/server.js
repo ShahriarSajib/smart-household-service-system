@@ -10,6 +10,8 @@ import ratingRoutes from "./routes/ratingRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import workerRoutes from "./routes/workerRoutes.js";
 
+import mailer from "./utils/mailer.js";
+
 dotenv.config();
 
 const app = express();
@@ -39,6 +41,17 @@ const testDB = async () => {
   }
 };
 testDB();
+
+// Test SMTP transporter (optional)
+const testMailer = async () => {
+  try {
+    await mailer.transporter.verify();
+    console.log("SMTP transporter ready");
+  } catch (err) {
+    console.warn("SMTP transporter verification failed:", err.message);
+  }
+};
+testMailer();
 
 // Start server
 const PORT = process.env.PORT || 5000;

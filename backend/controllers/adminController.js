@@ -1,4 +1,5 @@
 import { query } from "../config/db.js";
+import { error, success } from "../utils/responseHelper.js";
 
 // Get all pending workers (availability = 'Offline')
 export const getPendingWorkers = async (req, res) => {
@@ -9,7 +10,7 @@ export const getPendingWorkers = async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error("getPendingWorkers error:", err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json(error(err.message));
   }
 };
 
@@ -21,7 +22,7 @@ export const approveWorker = async (req, res) => {
 
     const [worker] = await query("SELECT * FROM workers WHERE id = ?", [id]);
     if (!worker.length)
-      return res.status(404).json({ message: "Worker not found" });
+      return res.status(404).json(error("Worker not found"));
 
     await query("UPDATE workers SET availability = 'Available' WHERE id = ?", [id]);
 
@@ -30,9 +31,9 @@ export const approveWorker = async (req, res) => {
       [adminId, "approve_worker", `Approved worker id=${id}`]
     );
 
-    res.json({ message: "Worker approved successfully" });
+    res.json(success("Worker approved successfully"));
   } catch (err) {
     console.error("approveWorker error:", err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json(error(err.message));
   }
 };
