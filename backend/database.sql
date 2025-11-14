@@ -64,15 +64,6 @@ CREATE TABLE admin_logs (
   FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE blacklisted_tokens (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  token VARCHAR(500) NOT NULL,
-  user_id INT NULL,
-  worker_id INT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-
 ALTER TABLE workers 
   ADD COLUMN latitude DECIMAL(10,7) NULL,
   ADD COLUMN longitude DECIMAL(10,7) NULL;
@@ -80,4 +71,34 @@ ALTER TABLE workers
 ALTER TABLE service_requests 
   ADD COLUMN latitude DECIMAL(10,7) NULL,
   ADD COLUMN longitude DECIMAL(10,7) NULL;
+
+UPDATE users SET role = 'admin' WHERE email = 'user1@example.com';
+
+CREATE TABLE tokens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NULL,
+  worker_id INT NULL,
+  token VARCHAR(255) NOT NULL,
+  type VARCHAR(50) NOT NULL,
+  expires_at DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX (token)
+);
+
+CREATE TABLE blacklisted_tokens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  token VARCHAR(500) NOT NULL,
+  user_id INT NULL,
+  worker_id INT NULL,
+  expires_at DATETIME NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE users ADD COLUMN email_verified TINYINT DEFAULT 0;
+ALTER TABLE workers ADD COLUMN email_verified TINYINT DEFAULT 0;
+
+ALTER TABLE service_requests 
+MODIFY COLUMN status 
+ENUM('Pending', 'Assigned', 'Accepted', 'Cancelled', 'Completed') 
+DEFAULT 'Pending';
 
