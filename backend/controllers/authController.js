@@ -328,3 +328,23 @@ export const resetPassword = async (req, res) => {
     res.status(500).json(error(err.message));
   }
 };
+
+//logout controller using token blacklisting
+export const logout = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(400).json(error("Token required"));
+
+    const decoded = jwt.decode(token);
+
+    await query(
+      "INSERT INTO token_blacklist (token, expires_at) VALUES (?, FROM_UNIXTIME(?))",
+      [token, decoded.exp]
+    );
+
+    res.json(success("Logged out successfully"));
+  } catch (err) {
+    console.error("logout error:", err);
+    res.status(500).json(error(err.message));
+  }
+};
