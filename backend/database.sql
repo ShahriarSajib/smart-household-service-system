@@ -64,6 +64,15 @@ CREATE TABLE admin_logs (
   FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE blacklisted_tokens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  token VARCHAR(500) NOT NULL,
+  user_id INT NULL,
+  worker_id INT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+
 ALTER TABLE workers 
   ADD COLUMN latitude DECIMAL(10,7) NULL,
   ADD COLUMN longitude DECIMAL(10,7) NULL;
@@ -71,3 +80,4 @@ ALTER TABLE workers
 ALTER TABLE service_requests 
   ADD COLUMN latitude DECIMAL(10,7) NULL,
   ADD COLUMN longitude DECIMAL(10,7) NULL;
+
