@@ -1,15 +1,16 @@
 import { query } from "../config/db.js";
+import { error, success } from "../utils/responseHelper.js";
 
-// Add a rating (user → worker)
+// Add a rating (user to worker)
 export const addRating = async (req, res) => {
   try {
     const { request_id, rater_id, ratee_id, score, comment } = req.body;
 
     if (!request_id || !rater_id || !ratee_id || !score)
-      return res.status(400).json({ message: "Missing required fields" });
+      return res.status(400).json(error("Missing required fields"));
 
     if (score < 1 || score > 5)
-      return res.status(400).json({ message: "Score must be between 1 and 5" });
+      return res.status(400).json(error("Score must be between 1 and 5"));
 
     // Check if request exists and is completed
     const [reqData] = await query(
@@ -17,10 +18,10 @@ export const addRating = async (req, res) => {
       [request_id]
     );
     if (!reqData.length)
-      return res.status(404).json({ message: "Service request not found" });
+      return res.status(404).json(error("Service request not found"));
 
     if (reqData[0].status !== "Completed")
-      return res.status(400).json({ message: "Can only rate completed requests" });
+      return res.status(400).json(error("Can only rate completed requests"));
 
     // Insert rating
     await query(
@@ -46,10 +47,10 @@ export const addRating = async (req, res) => {
       );
     }
 
-    res.status(201).json({ message: "Rating submitted successfully" });
+    res.status(201).json(success("Rating submitted successfully"));
   } catch (err) {
-    console.error("❌ Rating Error:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Rating Error:", err);
+    res.status(500).json(error("Server error"));
   }
 };
 
@@ -73,7 +74,7 @@ export const getWorkerRatings = async (req, res) => {
     );
 
     if (!worker.length)
-      return res.status(404).json({ message: "Worker not found" });
+      return res.status(404).json(error("Worker not found"));
 
     res.json({
       worker: worker[0],
@@ -82,6 +83,6 @@ export const getWorkerRatings = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json(error("Server error"));
   }
 };

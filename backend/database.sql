@@ -23,6 +23,12 @@ CREATE TABLE workers (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE service_types (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) UNIQUE NOT NULL,
+  description TEXT
+);
+
 CREATE TABLE service_requests (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
@@ -36,12 +42,6 @@ CREATE TABLE service_requests (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (assigned_worker_id) REFERENCES workers(id) ON DELETE SET NULL,
   FOREIGN KEY (service_type_id) REFERENCES service_types(id) ON DELETE SET NULL
-);
-
-CREATE TABLE service_types (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) UNIQUE NOT NULL,
-  description TEXT
 );
 
 CREATE TABLE ratings (
@@ -63,3 +63,11 @@ CREATE TABLE admin_logs (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+ALTER TABLE workers 
+  ADD COLUMN latitude DECIMAL(10,7) NULL,
+  ADD COLUMN longitude DECIMAL(10,7) NULL;
+
+ALTER TABLE service_requests 
+  ADD COLUMN latitude DECIMAL(10,7) NULL,
+  ADD COLUMN longitude DECIMAL(10,7) NULL;
