@@ -1,6 +1,9 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+
 import pool from "./config/db.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
@@ -10,32 +13,42 @@ import ratingRoutes from "./routes/ratingRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import workerRoutes from "./routes/workerRoutes.js";
 
-import mailer from "./utils/mailer.js";
-import logger from "./utils/logger.js"; 
 import requestLogger from "./middleware/requestLogger.js";
+import logger from "./utils/logger.js";
+import mailer from "./utils/mailer.js";
 
 dotenv.config();
 
 const app = express();
 
+// Fix __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(requestLogger); // log all API requests
 
-// Log all API requests
-app.use(requestLogger);
-
-// Routes
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/requests", serviceRoutes);
 app.use("/api/ratings", ratingRoutes);
 app.use("/api/workers", workerRoutes);
 
-// Root route
+// Root
 app.get("/", (req, res) => res.send("FixMate Backend Running"));
 
-// Place error handler LAST
+// Serve Frontend (React/HTML)
+const frontendPath = path.join(__dirname, "..", "frontend");
+app.use(express.static(frontendPath));
+
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
+
+// Error Handler (must be last)
 app.use(errorHandler);
 
 // Test DB Connection
@@ -49,7 +62,7 @@ const testDB = async () => {
 };
 testDB();
 
-// Test SMTP transporter (optional)
+// Test SMTP transporter
 const testMailer = async () => {
   try {
     await mailer.transporter.verify();
@@ -60,6 +73,6 @@ const testMailer = async () => {
 };
 testMailer();
 
-// Start server
+// Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
+app.listen(PORT, () => logger.info(`Server running at http://localhost:${PORT}`));
