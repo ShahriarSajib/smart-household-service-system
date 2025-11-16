@@ -28,7 +28,7 @@ const __dirname = path.dirname(__filename);
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(requestLogger); // log all API requests
+app.use(requestLogger);
 
 // API Routes
 app.use("/api/auth", authRoutes);
@@ -37,16 +37,18 @@ app.use("/api/requests", serviceRoutes);
 app.use("/api/ratings", ratingRoutes);
 app.use("/api/workers", workerRoutes);
 
-// Root
-app.get("/", (req, res) => res.send("FixMate Backend Running"));
+// Root API route
+//app.get("/", (req, res) => res.send("FixMate Backend Running"));
 
-// Serve Frontend (React/HTML)
+// Serve Frontend
 const frontendPath = path.join(__dirname, "..", "frontend");
 app.use(express.static(frontendPath));
 
+// Express 5 compatible catch-all
 app.get(/.*/, (req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
+
 
 // Error Handler (must be last)
 app.use(errorHandler);
@@ -75,4 +77,6 @@ testMailer();
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => logger.info(`Server running at http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  logger.info(`Server running at http://localhost:${PORT}`)
+);
