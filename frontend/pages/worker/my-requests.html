@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>My Requests - Worker</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/assets/css/global.css">
+</head>
+<body>
+
+<div id="navbar-dynamic"></div>
+
+<main class="container" style="padding:2rem;max-width:900px">
+  <h2>My Assigned Requests</h2>
+  <div id="requestsContainer" style="margin-top:1.5rem"></div>
+</main>
+
+<script type="module" src="/assets/js/pages/worker/my-requests.js"></script>
+<script type="module">
+  import { renderNavbarInto } from "/assets/js/components/navbar.js";
+  renderNavbarInto();
+</script>
+
+</body>
+</html>

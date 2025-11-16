@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Worker Dashboard - FixMate</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/assets/css/global.css">
+</head>
+<body>
+
+<div id="navbar-dynamic"></div>
+
+<main class="container" style="padding:2rem; max-width:900px;">
+  <h2>Welcome Worker 👷</h2>
+  <p style="color:var(--muted)">Manage your assigned service requests.</p>
+
+  <div style="margin-top:2rem; display:flex; gap:20px; flex-wrap:wrap">
+    <a href="/pages/worker/my-requests.html" class="btn btn-primary">📄 My Requests</a>
+    <a href="/pages/worker/ratings.html" class="btn btn-secondary">⭐ My Ratings</a>
+    <a href="/pages/worker/update-location.html" class="btn btn-secondary">📍 Update Location</a>
+  </div>
+
+  <section style="margin-top:2rem">
+    <h3>Recent Assigned Work</h3>
+    <div id="recentRequests"></div>
+  </section>
+</main>
+
+<script type="module" src="/assets/js/pages/worker/dashboard.js"></script>
+<script type="module">
+  import { renderNavbarInto } from "/assets/js/components/navbar.js";
+  renderNavbarInto();
+</script>
+
+</body>
+</html>
