@@ -41,22 +41,44 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Location</label>
+          <label class="form-label">Location (text)</label>
           <input class="form-control" name="location" required />
           <div class="form-error"></div>
         </div>
 
+        <!-- NEW: Latitude + Longitude Fields -->
         <div
           style="
             display: flex;
             gap: 10px;
             align-items: center;
-            margin-top: 0.5rem;
+            margin-top: 1rem;
           "
         >
-          <button type="button" id="gpsBtn" class="btn btn-secondary">
-            Use GPS
-          </button>
+          <div style="flex: 1">
+            <label class="form-label">Latitude</label>
+            <input name="latitude" class="form-control" placeholder="23.7806" />
+          </div>
+
+          <div style="flex: 1">
+            <label class="form-label">Longitude</label>
+            <input
+              name="longitude"
+              class="form-control"
+              placeholder="90.2794"
+            />
+          </div>
+
+          <div>
+            <button
+              type="button"
+              id="gpsBtn"
+              class="btn btn-secondary"
+              style="height: 40px; margin-top: 22px"
+            >
+              Use GPS
+            </button>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-primary" style="margin-top: 1rem">

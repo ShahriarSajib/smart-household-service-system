@@ -8,6 +8,8 @@ export function createRequestCard(request, opts = {}) {
   card.style.marginBottom = "14px";
   card.style.padding = "14px";
 
+  const statusLower = request.status.toLowerCase();
+
   card.innerHTML = `
     <h3 style="margin:0">${request.category}</h3>
     <p>${request.description}</p>
@@ -29,28 +31,40 @@ export function createRequestCard(request, opts = {}) {
 
   const actions = card.querySelector(".actions");
 
-  // cancel button
-  if (opts.showCancel && request.status !== "completed" && request.status !== "cancelled") {
+  // =======================
+  // SHOW CANCEL BUTTON
+  // =======================
+  if (opts.showCancel && statusLower !== "completed" && statusLower !== "cancelled") {
     const btn = document.createElement("button");
     btn.className = "btn btn-danger";
     btn.textContent = "Cancel";
-    btn.onclick = () => cancelRequest(request.id, card);
+
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      cancelRequest(request.id, card);
+    };
+
     actions.appendChild(btn);
   }
 
   return card;
 }
 
+// =======================
+// CANCEL REQUEST
+// =======================
 async function cancelRequest(id, card) {
   if (!confirm("Cancel this request?")) return;
 
   try {
-    await apiFetch(`${ENDPOINTS.REQUESTS.BASE}/${id}/cancel`, {
+    await apiFetch(ENDPOINTS.REQUESTS.CANCEL(id), {
       method: "PUT"
     });
+
     toast.success("Cancelled");
     card.remove();
+
   } catch (err) {
-    toast.error(err.message);
+    toast.error(err.message || "Cancel failed");
   }
 }

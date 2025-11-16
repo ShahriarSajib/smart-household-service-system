@@ -21,3 +21,15 @@ export function logoutLocal() {
 export function currentUser() {
   return getUser();
 }
+
+export function requireAuth(role = null) {
+  const user = getUser();
+  if (!user) {
+    window.location.href = "/pages/auth/login.html";
+    return;
+  }
+  if (role && user.role !== role) {
+    window.location.href = "/pages/auth/login.html";
+    return;
+  }
+}
