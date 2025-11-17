@@ -73,10 +73,12 @@ export function renderNavbarInto(targetId = 'navbar-dynamic') {
       right.appendChild(createLink('/pages/worker/ratings.html', 'Ratings'));
     }
 
-    if (user.role === 'admin') {
-      right.appendChild(createLink('/pages/admin/dashboard.html', 'Admin'));
-      right.appendChild(createLink('/pages/admin/pending-workers.html', 'Pending Workers'));
-    }
+   if (user.role === 'admin') {
+    right.appendChild(createLink('/pages/admin/dashboard.html', 'Admin'));
+    right.appendChild(createLink('/pages/admin/pending-workers.html', 'Pending Workers'));
+    right.appendChild(createLink('/pages/admin/work-requests.html', 'Work Requests'));
+    right.appendChild(createLink('/pages/admin/profile.html', 'Profile'));
+  }
 
     // Profile label
     const profile = document.createElement('span');

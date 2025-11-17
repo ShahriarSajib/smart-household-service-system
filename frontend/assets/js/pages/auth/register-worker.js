@@ -6,6 +6,7 @@ import { isEmail, minLength, isRequired } from '../../utils/validation.js';
 const form = document.getElementById('registerWorkerForm');
 const geoBtn = document.getElementById('geoBtn');
 const msg = document.getElementById('registerWorkerMessage');
+const resendBtn = document.getElementById('resendVerifyBtn');
 
 function showError(input, text) {
   const el = input.parentElement.querySelector('.form-error');
@@ -17,7 +18,7 @@ function clearErrors(form) {
   form.querySelectorAll('.form-control').forEach(i => i.classList.remove('error'));
 }
 
-// geolocation helper
+// GEO
 geoBtn.addEventListener('click', () => {
   if (!navigator.geolocation) {
     toast.error('Geolocation not supported by browser');
@@ -38,10 +39,12 @@ geoBtn.addEventListener('click', () => {
   }, { timeout: 10000 });
 });
 
+// FORM SUBMIT
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   clearErrors(form);
   msg.textContent = '';
+  resendBtn.style.display = 'none';
 
   const name = form.name.value.trim();
   const email = form.email.value.trim();
@@ -64,12 +67,36 @@ form.addEventListener('submit', async (e) => {
       timeout: 15000,
     });
 
-    const message = (res && (res.message || res.msg)) || 'Worker registered successfully. Verify email and wait admin approval.';
+    const message =
+      (res && (res.message || res.msg)) ||
+      'Worker registered successfully. A verification email has been sent.';
+
     toast.success(message);
     msg.textContent = message;
-    setTimeout(() => location.href = '/pages/auth/login.html', 1600);
+
+    // SHOW RESEND EMAIL BUTTON
+    resendBtn.style.display = 'inline-block';
+    resendBtn.dataset.email = email;
+
   } catch (err) {
     toast.error(err.message || 'Registration failed');
     msg.textContent = err.message || 'Registration failed';
+  }
+});
+
+// RESEND VERIFICATION EMAIL
+resendBtn.addEventListener('click', async () => {
+  const email = resendBtn.dataset.email;
+  if (!email) return toast.error("Email not found");
+
+  try {
+    const res = await apiFetch(ENDPOINTS.AUTH.RESEND_VERIFICATION, {
+      method: "POST",
+      body: { email }
+    });
+
+    toast.success("Verification email sent again!");
+  } catch (err) {
+    toast.error(err.message || "Failed to resend email");
   }
 });
