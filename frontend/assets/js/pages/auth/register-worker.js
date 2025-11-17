@@ -1,43 +1,61 @@
-import { apiFetch } from '../../utils/api-client.js';
 import { ENDPOINTS } from '../../config/api.js';
+import { CATEGORIES } from '../../config/categories.js';
+import { apiFetch } from '../../utils/api-client.js';
 import { toast } from '../../utils/toast.js';
-import { isEmail, minLength, isRequired } from '../../utils/validation.js';
+import { isEmail, isRequired, minLength } from '../../utils/validation.js';
 
 const form = document.getElementById('registerWorkerForm');
 const geoBtn = document.getElementById('geoBtn');
 const msg = document.getElementById('registerWorkerMessage');
+
+const skillSelect = document.getElementById("skillCategorySelect");
+
+// Populate dropdown from shared categories
+CATEGORIES.forEach(cat => {
+  const opt = document.createElement("option");
+  opt.value = cat;
+  opt.textContent = cat;
+  skillSelect.appendChild(opt);
+});
 
 function showError(input, text) {
   const el = input.parentElement.querySelector('.form-error');
   if (el) { el.style.display = 'block'; el.textContent = text; }
   input.classList.add('error');
 }
+
 function clearErrors(form) {
-  form.querySelectorAll('.form-error').forEach(e => { e.style.display = 'none'; e.textContent = ''; });
+  form.querySelectorAll('.form-error').forEach(e => {
+    e.style.display = 'none'; e.textContent = '';
+  });
   form.querySelectorAll('.form-control').forEach(i => i.classList.remove('error'));
 }
 
-// geolocation helper
+// GPS
 geoBtn.addEventListener('click', () => {
-  if (!navigator.geolocation) {
-    toast.error('Geolocation not supported by browser');
-    return;
-  }
+  if (!navigator.geolocation) return toast.error("Geolocation not supported");
+
   geoBtn.disabled = true;
-  geoBtn.textContent = 'Locating...';
-  navigator.geolocation.getCurrentPosition((pos) => {
-    form.latitude.value = pos.coords.latitude;
-    form.longitude.value = pos.coords.longitude;
-    geoBtn.textContent = 'Use GPS';
-    geoBtn.disabled = false;
-    toast.success('Location filled');
-  }, (err) => {
-    geoBtn.textContent = 'Use GPS';
-    geoBtn.disabled = false;
-    toast.error('Unable to get location');
-  }, { timeout: 10000 });
+  geoBtn.textContent = "Locating...";
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      form.latitude.value = pos.coords.latitude;
+      form.longitude.value = pos.coords.longitude;
+      geoBtn.textContent = "Use GPS";
+      geoBtn.disabled = false;
+      toast.success("Location filled");
+    },
+    () => {
+      geoBtn.textContent = "Use GPS";
+      geoBtn.disabled = false;
+      toast.error("Unable to get location");
+    },
+    { timeout: 10000 }
+  );
 });
 
+// Form submit
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   clearErrors(form);
@@ -51,22 +69,23 @@ form.addEventListener('submit', async (e) => {
   const latitude = form.latitude.value.trim() || null;
   const longitude = form.longitude.value.trim() || null;
 
-  if (!isRequired(name)) { showError(form.name, 'Name is required'); return; }
-  if (!isEmail(email)) { showError(form.email, 'Invalid email'); return; }
-  if (!minLength(password, 6)) { showError(form.password, 'Password must be at least 6 chars'); return; }
-  if (!isRequired(skill_category)) { showError(form.skill_category, 'Skill category required'); return; }
+  if (!isRequired(name)) return showError(form.name, 'Name is required');
+  if (!isEmail(email)) return showError(form.email, 'Invalid email');
+  if (!minLength(password, 6)) return showError(form.password, 'Password must be at least 6 chars');
+  if (!isRequired(skill_category)) return showError(form.skill_category, 'Skill category required');
 
   try {
     const payload = { name, email, password, skill_category, location, latitude, longitude };
+
     const res = await apiFetch(ENDPOINTS.AUTH.REGISTER_WORKER, {
       method: 'POST',
-      body: payload,
-      timeout: 15000,
+      body: payload
     });
 
-    const message = (res && (res.message || res.msg)) || 'Worker registered successfully. Verify email and wait admin approval.';
+    const message = res?.message || 'Worker registered successfully. Verify email & wait admin approval.';
     toast.success(message);
     msg.textContent = message;
+
     setTimeout(() => location.href = '/pages/auth/login.html', 1600);
   } catch (err) {
     toast.error(err.message || 'Registration failed');

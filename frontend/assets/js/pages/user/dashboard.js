@@ -1,25 +1,34 @@
 import { createRequestCard } from '../../components/requestCard.js';
 import { ENDPOINTS } from '../../config/api.js';
 import { apiFetch } from '../../utils/api-client.js';
-import { requireAuth } from '../../utils/auth.js';
+import { currentUser, requireAuth } from '../../utils/auth.js';
 
 requireAuth('user');
+
+const user = currentUser();
+const userId = user.id;
 
 const recentContainer = document.getElementById("recentRequests");
 
 async function loadRecent() {
   try {
-    const res = await apiFetch(ENDPOINTS.REQUESTS.USER, { method: "GET" });
+    // Correct endpoint with user ID
+    const res = await apiFetch(
+      ENDPOINTS.REQUESTS.USER_REQUESTS(userId)
+    );
 
-    if (!res.data || res.data.length === 0) {
+    // Backend returns array, not res.data
+    if (!Array.isArray(res) || res.length === 0) {
       recentContainer.innerHTML = "<p>No recent requests found.</p>";
       return;
     }
 
     recentContainer.innerHTML = "";
-    res.data.slice(0, 3).forEach(req => {
+
+    res.slice(0, 3).forEach(req => {
       recentContainer.appendChild(createRequestCard(req));
     });
+
   } catch (err) {
     recentContainer.innerHTML = `<p>Error loading requests: ${err.message}</p>`;
   }

@@ -1,21 +1,25 @@
 import { ENDPOINTS } from "../../config/api.js";
+import { CATEGORIES } from "../../config/categories.js";
 import { apiFetch } from "../../utils/api-client.js";
-//import { requireAuth } from "../../utils/auth.js";
 import { toast } from "../../utils/toast.js";
 import { isRequired, minLength } from "../../utils/validation.js";
-
-//requireAuth("user");
 
 const form = document.getElementById("requestForm");
 const gpsBtn = document.getElementById("gpsBtn");
 const msg = document.getElementById("message");
+const categorySelect = document.getElementById("categorySelect");
 
-// GPS (same method as register-worker)
+// Populate categories from config file
+CATEGORIES.forEach(cat => {
+  const option = document.createElement("option");
+  option.value = cat;
+  option.textContent = cat;
+  categorySelect.appendChild(option);
+});
+
+// GPS button
 gpsBtn.addEventListener("click", () => {
-  if (!navigator.geolocation) {
-    toast.error("Geolocation not supported by browser");
-    return;
-  }
+  if (!navigator.geolocation) return toast.error("Geolocation not supported");
 
   gpsBtn.disabled = true;
   gpsBtn.textContent = "Locating...";
@@ -24,7 +28,6 @@ gpsBtn.addEventListener("click", () => {
     (pos) => {
       form.elements["latitude"].value = pos.coords.latitude;
       form.elements["longitude"].value = pos.coords.longitude;
-
       gpsBtn.textContent = "Use GPS";
       gpsBtn.disabled = false;
       toast.success("Location filled");
@@ -42,7 +45,7 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   msg.textContent = "";
 
-  const category = form.elements["category"].value.trim();
+  const category = form.elements["category"].value;
   const description = form.elements["description"].value.trim();
   const locationText = form.elements["location"].value.trim();
   const latitude = form.elements["latitude"].value.trim() || null;
@@ -53,15 +56,9 @@ form.addEventListener("submit", async (e) => {
   if (!isRequired(locationText)) return toast.error("Location required");
 
   try {
-    const payload = {
-      category,
-      description,
-      location: locationText,
-      latitude,
-      longitude,
-    };
+    const payload = { category, description, location: locationText, latitude, longitude };
 
-    const res = await apiFetch(ENDPOINTS.REQUESTS.CREATE, {
+    await apiFetch(ENDPOINTS.REQUESTS.CREATE, {
       method: "POST",
       body: payload,
     });
