@@ -278,7 +278,10 @@ export const forgotPassword = async (req, res) => {
 
 
     // Build reset link
-    const resetLink = `${process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`}/reset-password?token=${token}`;
+    const FRONTEND_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+
+    const resetLink = `${FRONTEND_URL}/pages/auth/reset-password.html?token=${token}`;
+
 
     // Send email
     await mailer.sendMail({
