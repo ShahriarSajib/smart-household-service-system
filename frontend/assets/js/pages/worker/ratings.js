@@ -1,32 +1,42 @@
-import { apiFetch } from "../../utils/api-client.js";
 import { ENDPOINTS } from "../../config/api.js";
-import { requireAuth } from "../../utils/auth.js";
+import { apiFetch } from "../../utils/api-client.js";
+import { currentUser, requireAuth } from "../../utils/auth.js";
 
-requireAuth("worker");
+requireAuth("worker"); // ensures only worker can enter
+
+// Get worker info
+const worker = currentUser();
 
 const summary = document.getElementById("summary");
 const list = document.getElementById("ratingsContainer");
 
 async function loadRatings() {
   try {
-    const res = await apiFetch(ENDPOINTS.WORKERS.RATINGS);
+    // ✔ Correct endpoint — now passes worker.id
+    const res = await apiFetch(
+      ENDPOINTS.RATINGS.GET_WORKER_RATINGS(worker.id)
+    );
 
-    const worker = res.data.worker;
+    // Backend returns array & summary object directly
+    const workerSummary = res.worker;
+    const ratings = res.ratings || [];
 
     summary.innerHTML = `
       <div class="card" style="padding:15px">
-        <h3>${worker.name}</h3>
-        <p>⭐ Rating: <b>${worker.rating.toFixed(1)}</b></p>
-        <p>Total Reviews: ${worker.rating_count}</p>
+        <h3>${workerSummary.name}</h3>
+        <p>⭐ Rating: <b>${workerSummary.rating?.toFixed(1) || "0.0"}</b></p>
+        <p>Total Reviews: ${workerSummary.rating_count}</p>
       </div>
     `;
 
-    if (!res.data.ratings.length) {
+    if (!ratings.length) {
       list.innerHTML = "<p>No ratings yet.</p>";
       return;
     }
 
-    res.data.ratings.forEach(r => {
+    list.innerHTML = "";
+
+    ratings.forEach(r => {
       const div = document.createElement("div");
       div.className = "card";
       div.style.padding = "15px";
@@ -44,7 +54,7 @@ async function loadRatings() {
     });
 
   } catch (err) {
-    summary.innerHTML = `<p>${err.message}</p>`;
+    summary.innerHTML = `<p style="color:red">${err.message}</p>`;
   }
 }
 
