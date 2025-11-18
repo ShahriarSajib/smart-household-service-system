@@ -15,6 +15,7 @@ export const ENDPOINTS = {
   ADMIN: {
     PENDING_WORKERS: '/admin/workers/pending',
     APPROVE_WORKER: (id) => `/admin/workers/${id}/approve`,
+    REJECT_WORKER: (id) => `/admin/workers/${id}/reject`,
     WORK_REQUESTS: '/admin/work-requests',
     GET_PROFILE: '/admin/profile',
     UPDATE_PROFILE: '/admin/profile/update',

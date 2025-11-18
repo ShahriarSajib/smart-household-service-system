@@ -36,6 +36,24 @@ export const approveWorker = async (req, res) => {
   }
 };
 
+// Reject a worker
+export const rejectWorker = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [worker] = await query("SELECT * FROM workers WHERE id=?", [id]);
+    if (!worker.length) return res.status(404).json(error("Worker not found"));
+
+    await query("DELETE FROM workers WHERE id=?", [id]);
+
+    return res.json(success("Worker rejected and removed"));
+  } catch (err) {
+    console.error("rejectWorker error:", err);
+    return res.status(500).json(error(err.message));
+  }
+};
+
+
 // Get work requests
 export const getWorkRequests = async (req, res) => {
   try {
