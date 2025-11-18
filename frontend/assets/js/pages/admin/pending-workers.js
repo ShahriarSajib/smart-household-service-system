@@ -28,12 +28,16 @@ async function loadPending() {
       card.style.marginBottom = "10px";
       card.innerHTML = `
         <p><b>${worker.name}</b> (${worker.skill_category}) - ${worker.location || 'N/A'}</p>
-        <button class="btn btn-primary approve-btn" data-id="${worker.id}">Approve</button>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+          <button class="btn btn-primary approve-btn" data-id="${worker.id}">Approve</button>
+          <button class="btn btn-danger reject-btn" data-id="${worker.id}">Reject</button>
+        </div>
       `;
       container.appendChild(card);
     });
 
-    // Approve button handlers
+    // Approve Action
     container.querySelectorAll(".approve-btn").forEach(btn => {
       btn.addEventListener("click", async () => {
         const id = btn.dataset.id;
@@ -41,12 +45,34 @@ async function loadPending() {
         try {
           await apiFetch(ENDPOINTS.ADMIN.APPROVE_WORKER(id), { method: "PUT" });
           toast.success("Worker approved");
-          btn.textContent = "Approved";
-          // Optionally remove the card
           btn.closest(".card")?.remove();
         } catch (err) {
           toast.error(err.message || "Approve failed");
           btn.disabled = false;
+        }
+      });
+    });
+
+    // Reject Action With Confirmation
+    container.querySelectorAll(".reject-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+
+        // Optional confirmation popup
+        const confirmReject = confirm("Are you sure you want to reject? This will remove worker from system.");
+        if (!confirmReject) return;
+
+        btn.disabled = true;
+        btn.textContent = "Rejecting...";
+
+        try {
+          await apiFetch(ENDPOINTS.ADMIN.REJECT_WORKER(id), { method: "PUT" });
+          toast.success("Worker rejected");
+          btn.closest(".card")?.remove();
+        } catch (err) {
+          toast.error(err.message || "Reject failed");
+          btn.disabled = false;
+          btn.textContent = "Reject";
         }
       });
     });

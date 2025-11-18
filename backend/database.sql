@@ -104,3 +104,5 @@ DEFAULT 'Pending';
 
 ALTER TABLE users ADD phone VARCHAR(20);
 ALTER TABLE workers ADD phone VARCHAR(20);
+
+ALTER TABLE workers ADD COLUMN rejection_reason VARCHAR(255) NULL;
