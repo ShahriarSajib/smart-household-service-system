@@ -164,12 +164,23 @@ export const getUserRequests = async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await query(
-      `SELECT sr.*, w.name AS worker_name, w.skill_category 
+      `SELECT 
+         sr.*, 
+         w.name AS worker_name, 
+         w.phone AS worker_phone,
+         w.skill_category,
+         EXISTS(
+          SELECT 1 FROM ratings 
+          WHERE ratings.request_id = sr.id 
+            AND ratings.rater_id = sr.user_id
+        ) AS user_has_rated
        FROM service_requests sr 
        LEFT JOIN workers w ON sr.assigned_worker_id = w.id 
-       WHERE sr.user_id = ? ORDER BY sr.created_at DESC`,
+       WHERE sr.user_id = ? 
+       ORDER BY sr.created_at DESC`,
       [id]
     );
+
     res.json(rows);
   } catch (err) {
     res.status(500).json(error(err.message));
@@ -180,19 +191,26 @@ export const getUserRequests = async (req, res) => {
 export const getWorkerRequests = async (req, res) => {
   try {
     const { id } = req.params;
+
     const [rows] = await query(
-      `SELECT sr.*, u.name AS user_name, u.email AS user_email
+      `SELECT 
+         sr.*, 
+         u.name AS user_name, 
+         u.email AS user_email,
+         u.phone AS user_phone
        FROM service_requests sr 
        JOIN users u ON sr.user_id = u.id
        WHERE sr.assigned_worker_id = ?
        ORDER BY sr.created_at DESC`,
       [id]
     );
+
     res.json(rows);
   } catch (err) {
     res.status(500).json(error(err.message));
   }
 };
+
 
 // Mark a request as completed (and free worker)
 export const completeRequest = async (req, res) => {

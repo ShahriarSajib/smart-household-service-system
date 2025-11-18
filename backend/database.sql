@@ -102,3 +102,5 @@ MODIFY COLUMN status
 ENUM('Pending', 'Assigned', 'Accepted', 'Cancelled', 'Completed') 
 DEFAULT 'Pending';
 
+ALTER TABLE users ADD phone VARCHAR(20);
+ALTER TABLE workers ADD phone VARCHAR(20);

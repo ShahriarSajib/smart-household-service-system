@@ -1,36 +1,78 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Worker Dashboard - FixMate</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/assets/css/global.css">
-</head>
-<body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Worker Dashboard - FixMate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/assets/css/global.css" />
+  </head>
 
-<div id="navbar-dynamic"></div>
+  <body>
+    <div id="navbar-dynamic"></div>
 
-<main class="container" style="padding:2rem; max-width:900px;">
-  <h2>Welcome Worker 👷</h2>
-  <p style="color:var(--muted)">Manage your assigned service requests.</p>
+    <main class="container" style="padding: 2rem; max-width: 900px">
+      <h2>Welcome Worker 👷</h2>
+      <p style="color: var(--muted)">Manage your assigned service requests.</p>
 
-  <div style="margin-top:2rem; display:flex; gap:20px; flex-wrap:wrap">
-    <a href="/pages/worker/my-requests.html" class="btn btn-primary">📄 My Requests</a>
-    <a href="/pages/worker/ratings.html" class="btn btn-secondary">⭐ My Ratings</a>
-    <a href="/pages/worker/update-location.html" class="btn btn-secondary">📍 Update Location</a>
-  </div>
+      <!-- ACTION BUTTONS -->
+      <div style="margin-top: 2rem; display: flex; gap: 20px; flex-wrap: wrap">
+        <a href="/pages/worker/my-requests.html" class="btn btn-primary"
+          >📄 My Requests</a
+        >
+        <a href="/pages/worker/ratings.html" class="btn btn-secondary"
+          >⭐ My Ratings</a
+        >
+        <a href="/pages/worker/update-location.html" class="btn btn-secondary"
+          >📍 Update Location</a
+        >
 
-  <section style="margin-top:2rem">
-    <h3>Recent Assigned Work</h3>
-    <div id="recentRequests"></div>
-  </section>
-</main>
+        <!-- ✅ NEW BUTTON -->
+        <button id="openAvailabilityForm" class="btn btn-secondary">
+          ⚡ Update Availability
+        </button>
+      </div>
 
-<script type="module" src="/assets/js/pages/worker/dashboard.js"></script>
-<script type="module">
-  import { renderNavbarInto } from "/assets/js/components/navbar.js";
-  renderNavbarInto();
-</script>
+      <!-- ✅ HIDDEN AVAILABILITY FORM -->
+      <div
+        id="availabilityForm"
+        style="display: none; margin-top: 20px"
+        class="card"
+      >
+        <h3>Update Availability</h3>
 
-</body>
+        <label style="display: block; margin-top: 10px">
+          <input type="radio" name="availability" value="Available" /> Available
+        </label>
+
+        <label style="display: block; margin-top: 6px">
+          <input type="radio" name="availability" value="Busy" /> Busy
+        </label>
+
+        <label style="display: block; margin-top: 6px">
+          <input type="radio" name="availability" value="Offline" /> Offline
+        </label>
+
+        <button
+          id="submitAvailability"
+          class="btn btn-primary"
+          style="margin-top: 12px"
+        >
+          Submit
+        </button>
+      </div>
+
+      <!-- RECENT REQUESTS SECTION -->
+      <section style="margin-top: 2rem">
+        <h3>Recent Assigned Work</h3>
+        <div id="recentRequests"></div>
+      </section>
+    </main>
+
+    <!-- MAIN JS -->
+    <script type="module" src="/assets/js/pages/worker/dashboard.js"></script>
+    <script type="module">
+      import { renderNavbarInto } from "/assets/js/components/navbar.js";
+      renderNavbarInto();
+    </script>
+  </body>
 </html>
