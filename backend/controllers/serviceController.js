@@ -1,38 +1,66 @@
 import { query } from "../config/db.js";
 import { error, success } from "../utils/responseHelper.js";
 
-// Create request
+// Create request (modified to accept optional selected_worker_id)
 export const createRequest = async (req, res) => {
   try {
-    const user_id = req.user.id;
-    const { category, description, location, latitude, longitude } = req.body;
+    const user_id = req.user.id; // from token
+    const { category, description, location, latitude, longitude, selected_worker_id } = req.body;
 
     if (!category || !description || !location || !latitude || !longitude)
       return res.status(400).json(error("All fields are required"));
 
-    // Find nearest available worker in same category (auto-match)
-    const [workers] = await query(
-      `SELECT id, latitude, longitude,
-              (6371 * ACOS(
-                COS(RADIANS(?)) * COS(RADIANS(latitude)) *
-                COS(RADIANS(longitude) - RADIANS(?)) +
-                SIN(RADIANS(?)) * SIN(RADIANS(latitude))
-              )) AS distance
-       FROM workers
-       WHERE skill_category = ? AND availability = 'Available'
-       HAVING distance IS NOT NULL
-       ORDER BY distance ASC, rating DESC
-       LIMIT 1`,
-      [latitude, longitude, latitude, category]
-    );
-
     let assignedWorkerId = null;
     let status = "Pending";
 
-    // Assign worker, BUT DO NOT set Busy yet
-    if (workers.length > 0) {
-      assignedWorkerId = workers[0].id;
-      status = "Assigned"; // Waiting for worker acceptance
+    // If frontend provided a selected worker id, validate and assign that worker
+    if (selected_worker_id) {
+      // check existence & availability & skill_category
+      const [workerRows] = await query(
+        "SELECT id, skill_category, availability FROM workers WHERE id = ?",
+        [selected_worker_id]
+      );
+
+      if (!workerRows.length) {
+        return res.status(400).json(error("Selected worker not found"));
+      }
+
+      const worker = workerRows[0];
+
+      if (worker.skill_category && worker.skill_category.toLowerCase() !== String(category).toLowerCase()) {
+        return res.status(400).json(error("Selected worker does not match the requested category"));
+      }
+
+      if (worker.availability !== 'Available') {
+        return res.status(400).json(error("Selected worker is not currently available"));
+      }
+
+      assignedWorkerId = worker.id;
+      status = "Assigned"; // worker must accept -> they will change to Accepted
+    } else {
+      // Auto-match: Find nearest available worker in same category (existing Haversine logic)
+      const [workers] = await query(
+        `SELECT id, latitude, longitude,
+                (6371 * ACOS(
+                  COS(RADIANS(?)) * COS(RADIANS(latitude)) *
+                  COS(RADIANS(longitude) - RADIANS(?)) +
+                  SIN(RADIANS(?)) * SIN(RADIANS(latitude))
+                )) AS distance
+         FROM workers
+         WHERE skill_category = ? AND availability = 'Available'
+         HAVING distance IS NOT NULL
+         ORDER BY distance ASC, rating DESC
+         LIMIT 1`,
+        [latitude, longitude, latitude, category]
+      );
+
+      if (workers.length > 0) {
+        assignedWorkerId = workers[0].id;
+        status = "Assigned";
+      } else {
+        assignedWorkerId = null;
+        status = "Pending";
+      }
     }
 
     // Save service request
