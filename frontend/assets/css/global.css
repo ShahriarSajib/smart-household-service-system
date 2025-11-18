@@ -90,6 +90,19 @@ a {
   display: flex;
   flex-direction: column;
 }
+select {
+  background-color: var(--bg);
+  color: #fff !important;
+  border: 1px solid #555;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+select option {
+  background-color: #3a3939 !important;
+  color: #fff !important;
+}
+
 .stat-number {
   font-size: 1.6rem;
   font-weight: 800;
