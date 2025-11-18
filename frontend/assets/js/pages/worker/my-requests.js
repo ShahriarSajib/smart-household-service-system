@@ -2,12 +2,14 @@ import { createWorkerRequestCard } from "../../components/workerRequestCard.js";
 import { ENDPOINTS } from "../../config/api.js";
 import { apiFetch } from "../../utils/api-client.js";
 import { requireAuth } from "../../utils/auth.js";
+import { getUser } from "../../utils/storage.js";
 
-// Ensure only workers can access
-const worker = requireAuth("worker");
+// redirect if not worker
+requireAuth("worker");
 
-// If redirected, stop execution
-//if (!worker) return;
+// now safely get worker info
+const worker = getUser();
+const workerId = worker.id;
 
 const container = document.getElementById("requestsContainer");
 
@@ -15,12 +17,8 @@ async function loadRequests() {
   container.innerHTML = "<p>Loading...</p>";
 
   try {
-    // ✔ FIXED: use correct endpoint with worker.id
-    const res = await apiFetch(
-      ENDPOINTS.REQUESTS.WORKER_REQUESTS(worker.id)
-    );
+    const res = await apiFetch(ENDPOINTS.REQUESTS.WORKER_REQUESTS(workerId));
 
-    // Backend returns array directly
     if (!Array.isArray(res) || res.length === 0) {
       container.innerHTML = "<p>No assigned requests.</p>";
       return;

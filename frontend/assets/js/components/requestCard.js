@@ -18,12 +18,23 @@ export function createRequestCard(request, opts = {}) {
       Status: <b>${request.status}</b>
     </p>
 
-    <p style="font-size:13px;color:var(--muted)">Location: ${request.location}</p>
+    <p style="font-size:13px;color:var(--muted)">
+      Location: ${request.location}
+    </p>
 
     ${
       request.worker_name
-        ? `<div style="font-size:13px;margin-top:4px">Assigned to: <b>${request.worker_name}</b></div>`
-        : `<div style="font-size:13px;margin-top:4px">No worker assigned</div>`
+        ? `
+        <p style="font-size:13px;color:var(--muted);margin-top:6px">
+          Assigned Worker: <b>${request.worker_name}</b><br>
+          Phone: ${request.worker_phone || "Not provided"}
+        </p>
+      `
+        : `
+        <p style="font-size:13px;color:var(--muted);margin-top:6px">
+          No worker assigned
+        </p>
+      `
     }
 
     <div class="actions" style="margin-top:10px"></div>
@@ -31,9 +42,7 @@ export function createRequestCard(request, opts = {}) {
 
   const actions = card.querySelector(".actions");
 
-  // =======================
-  // SHOW CANCEL BUTTON
-  // =======================
+  // Cancel button
   if (opts.showCancel && statusLower !== "completed" && statusLower !== "cancelled") {
     const btn = document.createElement("button");
     btn.className = "btn btn-danger";
@@ -47,12 +56,23 @@ export function createRequestCard(request, opts = {}) {
     actions.appendChild(btn);
   }
 
+  //  Add rating button ONLY if request is completed
+  if (statusLower === "completed" && request.assigned_worker_id) {
+    const rateBtn = document.createElement("button");
+    rateBtn.className = "btn btn-primary";
+    rateBtn.textContent = "Rate Worker";
+
+    rateBtn.onclick = () => openRatingModal(request);
+
+    actions.appendChild(rateBtn);
+  }
+
   return card;
 }
 
-// =======================
-// CANCEL REQUEST
-// =======================
+
+
+// Cancel Request
 async function cancelRequest(id, card) {
   if (!confirm("Cancel this request?")) return;
 
@@ -66,5 +86,42 @@ async function cancelRequest(id, card) {
 
   } catch (err) {
     toast.error(err.message || "Cancel failed");
+  }
+}
+
+function openRatingModal(request) {
+  const score = prompt("Rate the worker (1-5):");
+
+  if (!score) return;
+
+  const rating = Number(score);
+
+  if (rating < 1 || rating > 5) {
+    toast.error("Rating must be between 1 and 5");
+    return;
+  }
+
+  const comment = prompt("Optional comment:") || "";
+
+  submitRating(request, rating, comment);
+}
+async function submitRating(request, rating, comment) {
+  try {
+    const payload = {
+      request_id: request.id,
+      rater_id: request.user_id, 
+      ratee_id: request.assigned_worker_id, 
+      score: rating,
+      comment,
+    };
+
+    await apiFetch(ENDPOINTS.RATINGS.ADD, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    toast.success("Rating submitted successfully!");
+  } catch (err) {
+    toast.error(err.message || "Failed to submit rating");
   }
 }
