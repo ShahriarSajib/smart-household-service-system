@@ -7,17 +7,12 @@ export const getWorkerProfile = async (req, res) => {
     const { id } = req.params;
     const { lat, lng } = req.query;
 
-    const [worker] = await query(
-      "SELECT id, name, email, phone, skill_category, location, availability, rating, rating_count, latitude, longitude, created_at FROM workers WHERE id = ?",
-      [id]
-    );
-
+    const [worker] = await query("SELECT * FROM workers WHERE id = ?", [id]);
     if (!worker.length)
       return res.status(404).json(error("Worker not found"));
 
     let workerData = worker[0];
 
-    // Calculate distance if coords provided
     if (lat && lng && workerData.latitude && workerData.longitude) {
       const [distanceResult] = await query(
         `SELECT (6371 * ACOS(
@@ -35,7 +30,6 @@ export const getWorkerProfile = async (req, res) => {
     res.status(500).json(error(err.message));
   }
 };
-
 
 // Update worker availability (manual override)
 export const updateAvailability = async (req, res) => {

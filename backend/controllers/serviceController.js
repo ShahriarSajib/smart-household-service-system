@@ -168,7 +168,12 @@ export const getUserRequests = async (req, res) => {
          sr.*, 
          w.name AS worker_name, 
          w.phone AS worker_phone,
-         w.skill_category 
+         w.skill_category,
+         EXISTS(
+          SELECT 1 FROM ratings 
+          WHERE ratings.request_id = sr.id 
+            AND ratings.rater_id = sr.user_id
+        ) AS user_has_rated
        FROM service_requests sr 
        LEFT JOIN workers w ON sr.assigned_worker_id = w.id 
        WHERE sr.user_id = ? 

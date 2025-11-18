@@ -56,13 +56,21 @@ export function createRequestCard(request, opts = {}) {
     actions.appendChild(btn);
   }
 
-  //  Add rating button ONLY if request is completed
+  // RATING BUTTON (ONLY IF COMPLETED)
   if (statusLower === "completed" && request.assigned_worker_id) {
     const rateBtn = document.createElement("button");
-    rateBtn.className = "btn btn-primary";
-    rateBtn.textContent = "Rate Worker";
 
-    rateBtn.onclick = () => openRatingModal(request);
+    // Check if already rated
+    if (request.user_has_rated) {
+      rateBtn.className = "btn btn-secondary";
+      rateBtn.textContent = "Worker Rated";
+      rateBtn.disabled = true;
+    } else {
+      rateBtn.className = "btn btn-primary";
+      rateBtn.textContent = "Rate Worker";
+
+      rateBtn.onclick = () => openRatingModal(request, rateBtn);
+    }
 
     actions.appendChild(rateBtn);
   }
@@ -70,9 +78,8 @@ export function createRequestCard(request, opts = {}) {
   return card;
 }
 
+/* --------------------- CANCEL REQUEST --------------------- */
 
-
-// Cancel Request
 async function cancelRequest(id, card) {
   if (!confirm("Cancel this request?")) return;
 
@@ -83,13 +90,14 @@ async function cancelRequest(id, card) {
 
     toast.success("Cancelled");
     card.remove();
-
   } catch (err) {
     toast.error(err.message || "Cancel failed");
   }
 }
 
-function openRatingModal(request) {
+/* --------------------- RATING MODAL --------------------- */
+
+function openRatingModal(request, btn) {
   const score = prompt("Rate the worker (1-5):");
 
   if (!score) return;
@@ -103,14 +111,17 @@ function openRatingModal(request) {
 
   const comment = prompt("Optional comment:") || "";
 
-  submitRating(request, rating, comment);
+  submitRating(request, rating, comment, btn);
 }
-async function submitRating(request, rating, comment) {
+
+/* --------------------- SUBMIT RATING --------------------- */
+
+async function submitRating(request, rating, comment, btn) {
   try {
     const payload = {
       request_id: request.id,
-      rater_id: request.user_id, 
-      ratee_id: request.assigned_worker_id, 
+      rater_id: request.user_id,
+      ratee_id: request.assigned_worker_id,
       score: rating,
       comment,
     };
@@ -121,6 +132,14 @@ async function submitRating(request, rating, comment) {
     });
 
     toast.success("Rating submitted successfully!");
+
+    // Update button after rating
+    if (btn) {
+      btn.className = "btn btn-secondary";
+      btn.textContent = "Worker Rated";
+      btn.disabled = true;
+    }
+
   } catch (err) {
     toast.error(err.message || "Failed to submit rating");
   }
