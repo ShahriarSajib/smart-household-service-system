@@ -1,48 +1,73 @@
+import renderNavbarInto from "../../components/navbar.js";
 import { apiFetch } from "../../utils/api-client.js";
+import { getUser, saveUser } from "../../utils/storage.js";
+import { toast } from "../../utils/toast.js";
 import { requireAuth } from "../../utils/auth.js";
 import { ENDPOINTS } from "../../config/api.js";
 
+// Only allow admin
 requireAuth("admin");
 
-const form = document.getElementById("editProfileForm");
-const successMsg = document.getElementById("successMsg");
-const errorMsg = document.getElementById("errorMsg");
+renderNavbarInto("navbar-dynamic");
 
+// DOM elements
+const profileForm = document.getElementById("profileForm");
+const nameInput = document.getElementById("name");
+const emailInput = document.getElementById("email");
+const passInput = document.getElementById("password");
+const submitBtn = document.getElementById("submitBtn");
+
+// Load profile
 async function loadProfile() {
   try {
-    // Use ENDPOINTS.ADMIN.GET_PROFILE instead of hardcoded URL
     const res = await apiFetch(ENDPOINTS.ADMIN.GET_PROFILE);
-    const user = res.data || {}; // safety fallback
 
-    form.name.value = user.name || "";
-    form.email.value = user.email || "";
+    if (!res || !res.data) throw new Error("Unable to load profile.");
+
+    nameInput.value = res.data.name;
+    emailInput.value = res.data.email;
+
   } catch (err) {
-    errorMsg.textContent = err.message;
+    toast.error(err.message);
   }
 }
 
-form.addEventListener("submit", async e => {
+loadProfile();
+
+// Submit
+profileForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  successMsg.textContent = "";
-  errorMsg.textContent = "";
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Updating...";
 
   const payload = {
-    name: form.name.value,
-    email: form.email.value,
-    password: form.password.value || undefined
+    name: nameInput.value.trim(),
+    email: emailInput.value.trim(),
+    password: passInput.value.trim() || null,
   };
 
   try {
-    // Use ENDPOINTS.ADMIN.UPDATE_PROFILE instead of hardcoded URL
     const res = await apiFetch(ENDPOINTS.ADMIN.UPDATE_PROFILE, {
       method: "PUT",
-      body: payload
+      body: JSON.stringify(payload),
     });
-    successMsg.textContent = res.message || "Profile updated successfully!";
+
+    if (res.error) throw new Error(res.error);
+
+    // Update local storage
+    const user = getUser();
+    user.name = payload.name;
+    user.email = payload.email;
+    saveUser(user);
+
+    toast.success("Profile updated successfully!");
+    passInput.value = "";
+
   } catch (err) {
-    errorMsg.textContent = err.message;
+    toast.error(err.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Update Profile";
   }
 });
-
-// Load profile data on page load
-loadProfile();

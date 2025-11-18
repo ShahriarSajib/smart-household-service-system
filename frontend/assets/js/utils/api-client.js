@@ -2,7 +2,9 @@ import { API_BASE_URL } from '../config/api.js';
 import { getToken } from './storage.js';
 
 /**
- * Generic fetch wrapper for API calls
+ * Generic fetch wrapper for API calls.
+ * - Adds Authorization header when token exists
+ * - Throws JS Error on network or non-2xx responses (with message from server when available)
  */
 export async function apiFetch(endpoint, options = {}) {
   const url = endpoint.startsWith('http') ? endpoint : (API_BASE_URL + endpoint);
@@ -16,7 +18,7 @@ export async function apiFetch(endpoint, options = {}) {
     { 'Content-Type': 'application/json' },
     options.headers || {}
   );
-  
+
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
   const opts = Object.assign(
@@ -38,7 +40,11 @@ export async function apiFetch(endpoint, options = {}) {
 
     const text = await res.text();
     let data = null;
-    try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch (e) {
+      data = text;
+    }
 
     if (!res.ok) {
       const message = (data && (data.message || data.msg || data.status)) || res.statusText || 'Request failed';
@@ -50,7 +56,10 @@ export async function apiFetch(endpoint, options = {}) {
 
     return data;
   } catch (err) {
-    if (err.name === 'AbortError') throw new Error('Request timed out');
+    clearTimeout(id);
+    if (err.name === 'AbortError') {
+      throw new Error('Request timed out');
+    }
     throw err;
   }
 }

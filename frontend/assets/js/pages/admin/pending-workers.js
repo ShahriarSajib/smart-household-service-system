@@ -1,5 +1,8 @@
+// frontend/assets/js/pages/admin/pending-workers.js
 import { apiFetch } from "../../utils/api-client.js";
+import { ENDPOINTS } from "../../config/api.js";
 import { requireAuth } from "../../utils/auth.js";
+import { toast } from "../../utils/toast.js";
 
 requireAuth("admin");
 
@@ -9,8 +12,8 @@ async function loadPending() {
   container.innerHTML = "<p>Loading...</p>";
 
   try {
-    const res = await apiFetch("/api/admin/workers/pending");
-    const workers = res.data || [];
+    const res = await apiFetch(ENDPOINTS.ADMIN.PENDING_WORKERS);
+    const workers = Array.isArray(res?.data) ? res.data : [];
 
     if (!workers.length) {
       container.innerHTML = "<p>No pending workers.</p>";
@@ -36,17 +39,20 @@ async function loadPending() {
         const id = btn.dataset.id;
         btn.disabled = true;
         try {
-          await apiFetch(`/api/admin/workers/${id}/approve`, { method: "PUT" });
+          await apiFetch(ENDPOINTS.ADMIN.APPROVE_WORKER(id), { method: "PUT" });
+          toast.success("Worker approved");
           btn.textContent = "Approved";
+          // Optionally remove the card
+          btn.closest(".card")?.remove();
         } catch (err) {
-          alert(err.message);
+          toast.error(err.message || "Approve failed");
           btn.disabled = false;
         }
       });
     });
 
   } catch (err) {
-    container.innerHTML = `<p>${err.message}</p>`;
+    container.innerHTML = `<p style="color:var(--error)">${err.message || "Failed to load pending workers"}</p>`;
   }
 }
 

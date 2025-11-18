@@ -1,21 +1,22 @@
 import express from "express";
 import { 
-    approveWorker, 
-    getPendingWorkers, 
-    getWorkRequests,
-    getAdminProfile,
-    updateAdminProfile
+  approveWorker, 
+  getPendingWorkers, 
+  getWorkRequests,
+  getAdminProfile,
+  updateAdminProfile
 } from "../controllers/adminController.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { requireAdmin } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-// Only admin can view and approve workers
+// All admin routes must verify token first, then check role
 router.get("/workers/pending", verifyToken, requireAdmin, getPendingWorkers);
 router.put("/workers/:id/approve", verifyToken, requireAdmin, approveWorker);
-router.get("/work-requests", requireAdmin, getWorkRequests);
-router.get("/profile", requireAdmin, getAdminProfile);
-router.put("/profile/update", requireAdmin, updateAdminProfile);
+
+router.get("/work-requests", verifyToken, requireAdmin, getWorkRequests);
+router.get("/profile", verifyToken, requireAdmin, getAdminProfile);
+router.put("/profile/update", verifyToken, requireAdmin, updateAdminProfile);
 
 export default router;
