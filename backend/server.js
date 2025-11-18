@@ -12,6 +12,7 @@ import authRoutes from "./routes/authRoutes.js";
 import ratingRoutes from "./routes/ratingRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import workerRoutes from "./routes/workerRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 import requestLogger from "./middleware/requestLogger.js";
 import logger from "./utils/logger.js";
@@ -36,6 +37,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/requests", serviceRoutes);
 app.use("/api/ratings", ratingRoutes);
 app.use("/api/workers", workerRoutes);
+app.use("/api/users", userRoutes);
 
 // Root API route
 //app.get("/", (req, res) => res.send("FixMate Backend Running"));
