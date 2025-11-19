@@ -5,10 +5,36 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Login - FixMate</title>
     <link rel="stylesheet" href="/assets/css/global.css" />
-    <link rel="stylesheet" href="/assets/css/animations.css" />
   </head>
   <body>
-    <div id="navbar-dynamic"></div>
+    <nav class="navbar">
+      <div class="container">
+        <a href="/" class="logo">
+          <span class="logo-icon">🔧</span>
+          <span>FixMate</span>
+        </a>
+
+        <button class="nav-toggle" id="navToggle">☰</button>
+
+        <ul class="nav-links" id="navLinks">
+          <li><a href="/pages/aboutUs.html">About Us</a></li>
+
+          <!-- Normal Login -->
+          <li>
+            <a href="/pages/auth/login.html" class="btn btn-secondary" style="padding: 0.5rem 1.5rem;">
+              Sign In
+            </a>
+          </li>
+
+          <!-- Login as Admin -->
+          <li>
+            <a href="/pages/auth/login.html?as=admin" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">
+              Login as Admin
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
 
     <main class="container" style="padding: 3.5rem 1rem; max-width: 720px">
       <div class="card" style="margin: 0 auto; padding: 2rem">
@@ -104,10 +130,6 @@
       </div>
     </main>
 
-    <script type="module" src="/assets/js/pages/auth/login.js"></script>
-    <script type="module">
-      import { renderNavbarInto } from "/assets/js/components/navbar.js";
-      renderNavbarInto();
-    </script>
+    <script type="module" src="/assets/js/pages/auth/login.js"></script>  
   </body>
 </html>
