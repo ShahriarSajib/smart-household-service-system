@@ -13,6 +13,21 @@
     <main class="container" style="padding: 2rem 1rem; max-width: 900px">
       <h2>My Service Requests</h2>
       <p style="color: var(--muted)">Track your service progress.</p>
+      <div style="margin: 1rem 0; display: flex; gap: 12px; flex-wrap: wrap">
+        <select id="sortSelect" class="form-control" style="max-width: 180px">
+          <option value="desc">Newest First</option>
+          <option value="asc">Oldest First</option>
+        </select>
+
+        <select id="filterSelect" class="form-control" style="max-width: 180px">
+          <option value="all">All Status</option>
+          <option value="Pending">Pending</option>
+          <option value="Assigned">Assigned</option>
+          <option value="Accepted">Accepted</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
 
       <div id="requestsContainer" style="margin-top: 1.5rem"></div>
     </main>

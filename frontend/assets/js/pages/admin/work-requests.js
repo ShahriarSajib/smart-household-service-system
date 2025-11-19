@@ -1,43 +1,77 @@
-// frontend/assets/js/pages/admin/work-requests.js
-import { apiFetch } from "../../utils/api-client.js";
 import { ENDPOINTS } from "../../config/api.js";
+import { apiFetch } from "../../utils/api-client.js";
 import { requireAuth } from "../../utils/auth.js";
 
 requireAuth("admin");
 
 const container = document.getElementById("workRequests");
+const sortSelect = document.getElementById("sortSelect");
+const filterSelect = document.getElementById("filterSelect");
+
+let allRequests = []; // store full list
 
 async function loadRequests() {
   container.innerHTML = "<p>Loading...</p>";
 
   try {
     const res = await apiFetch(ENDPOINTS.ADMIN.WORK_REQUESTS);
-    const requests = Array.isArray(res?.data) ? res.data : [];
+    allRequests = Array.isArray(res?.data) ? res.data : [];
 
-    if (!requests.length) {
+    if (!allRequests.length) {
       container.innerHTML = "<p>No work requests found.</p>";
       return;
     }
 
-    container.innerHTML = "";
-    requests.forEach(r => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.style.padding = "10px";
-      card.style.marginBottom = "10px";
-      card.innerHTML = `
-        <h4>${r.category || "General"} - <span class="status">${r.status}</span></h4>
-        <p><b>User:</b> ${r.user_name}</p>
-        <p><b>Description:</b> ${r.description}</p>
-        <p><b>Location:</b> ${r.location || 'N/A'}</p>
-        <p><b>Assigned Worker ID:</b> ${r.assigned_worker_id || 'Not assigned'}</p>
-      `;
-      container.appendChild(card);
-    });
+    renderRequests();
 
   } catch (err) {
     container.innerHTML = `<p style="color:var(--error)">${err.message || "Failed to load requests"}</p>`;
   }
 }
+
+function renderRequests() {
+  let list = [...allRequests];
+
+  // Filtering
+  const filterVal = filterSelect.value;
+  if (filterVal !== "all") {
+    list = list.filter(r => r.status === filterVal);
+  }
+
+  // Sorting
+  const sortVal = sortSelect.value;
+  list.sort((a, b) => {
+    const da = new Date(a.created_at);
+    const db = new Date(b.created_at);
+
+    if (sortVal === "newest") return db - da;
+    return da - db; // oldest
+  });
+
+  // Render
+  container.innerHTML = "";
+
+  list.forEach(r => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.padding = "12px";
+    card.style.marginBottom = "12px";
+
+    card.innerHTML = `
+      <h4>${r.category} - <span class="status">${r.status}</span></h4>
+      <p><b>User:</b> ${r.user_name}</p>
+      <p><b>Description:</b> ${r.description}</p>
+      <p><b>Location:</b> ${r.location || "N/A"}</p>
+      <p><b>Assigned Worker ID:</b> ${r.assigned_worker_id || "Not assigned"}</p>
+      <p style="font-size:13px;color:var(--muted)">⏱ ${new Date(r.created_at).toLocaleString()}</p>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+// EVENT LISTENERS
+sortSelect.addEventListener("change", renderRequests);
+filterSelect.addEventListener("change", renderRequests);
 
 loadRequests();

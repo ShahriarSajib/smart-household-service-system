@@ -4,14 +4,19 @@ import { apiFetch } from "../../utils/api-client.js";
 import { requireAuth } from "../../utils/auth.js";
 import { getUser } from "../../utils/storage.js";
 
-// redirect if not worker
+// Ensure only workers can access
 requireAuth("worker");
 
-// now safely get worker info
 const worker = getUser();
 const workerId = worker.id;
 
 const container = document.getElementById("requestsContainer");
+
+// Sorting + filtering controls
+const sortSelect = document.getElementById("sortSelect");
+const filterSelect = document.getElementById("filterSelect");
+
+let allRequests = [];
 
 async function loadRequests() {
   container.innerHTML = "<p>Loading...</p>";
@@ -19,22 +24,47 @@ async function loadRequests() {
   try {
     const res = await apiFetch(ENDPOINTS.REQUESTS.WORKER_REQUESTS(workerId));
 
-    if (!Array.isArray(res) || res.length === 0) {
-      container.innerHTML = "<p>No assigned requests.</p>";
-      return;
-    }
+    allRequests = Array.isArray(res) ? res : [];
 
-    container.innerHTML = "";
-
-    res.forEach(req => {
-      container.appendChild(
-        createWorkerRequestCard(req, { fullActions: true })
-      );
-    });
+    renderRequests();
 
   } catch (err) {
     container.innerHTML = `<p style="color:red">${err.message}</p>`;
   }
 }
+
+function renderRequests() {
+  let list = [...allRequests];
+
+  // Filter by status
+  const filter = filterSelect.value;
+  if (filter !== "all") {
+    list = list.filter(r => r.status === filter);
+  }
+
+  // Sort by created_at
+  const sort = sortSelect.value;
+  list.sort((a, b) => {
+    const dateA = new Date(a.created_at);
+    const dateB = new Date(b.created_at);
+    return sort === "asc" ? dateA - dateB : dateB - dateA;
+  });
+
+  if (list.length === 0) {
+    container.innerHTML = "<p>No assigned requests.</p>";
+    return;
+  }
+
+  container.innerHTML = "";
+  list.forEach(req => {
+    container.appendChild(
+      createWorkerRequestCard(req, { fullActions: true })
+    );
+  });
+}
+
+// Re-render on change
+sortSelect.addEventListener("change", renderRequests);
+filterSelect.addEventListener("change", renderRequests);
 
 loadRequests();
