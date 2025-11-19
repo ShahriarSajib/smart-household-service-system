@@ -116,7 +116,7 @@ export const getWorkerProfile = async (req, res) => {
     const { id } = req.params;
 
     const [rows] = await query(
-      "SELECT id, name, email, skill_category, availability, profilePic FROM workers WHERE id=?",
+      "SELECT id, name, email, phone, skill_category, availability, profilePic FROM workers WHERE id=?",
       [id]
     );
 
@@ -136,6 +136,7 @@ export const getWorkerProfile = async (req, res) => {
     return res.status(500).json(error(err.message));
   }
 };
+
 
 // UPDATE WORKER PROFILE
 export const updateWorkerProfile = async (req, res) => {
