@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>User Profile - FixMate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/assets/css/global.css" />
+  </head>
+
+  <body>
+    <div id="navbar-dynamic"></div>
+
+    <main class="container" style="max-width: 500px; padding: 2rem">
+      <h2>My Profile</h2>
+
+      <!-- Profile Image -->
+      <div style="text-align: center; margin-bottom: 20px">
+        <img
+          id="profileImg"
+          src="/assets/img/default-avatar.png"
+          class="clickable-profile-img"
+          style="
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+          "
+        />
+      </div>
+
+      <!-- Fullscreen Modal -->
+      <div id="imgModal" class="img-modal">
+        <span id="imgModalClose" class="img-modal-close">&times;</span>
+        <img id="imgModalContent" />
+      </div>
+
+      <div class="card" style="padding: 20px">
+        <p><b>Name:</b> <span id="name"></span></p>
+        <p><b>Email:</b> <span id="email"></span></p>
+      </div>
+
+      <button
+        id="updateBtn"
+        class="btn btn-primary"
+        style="margin-top: 20px; width: 100%"
+      >
+        Update Profile
+      </button>
+    </main>
+
+    <script type="module" src="/assets/js/pages/user/profile.js"></script>
+    <script type="module">
+      import { renderNavbarInto } from "/assets/js/components/navbar.js";
+      renderNavbarInto();
+    </script>
+  </body>
+</html>

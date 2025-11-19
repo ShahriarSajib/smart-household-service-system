@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Register - FixMate (User)</title>
+    <link rel="stylesheet" href="/assets/css/global.css" />
+  </head>
+  <body>
+    <div id="navbar-dynamic"></div>
+
+    <main class="container" style="padding: 3rem 1rem; max-width: 800px">
+      <div class="card" style="margin: 0 auto; padding: 1.75rem">
+        <div
+          style="
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 8px;
+          "
+        >
+          <div style="font-size: 26px">🔐</div>
+          <div>
+            <h2 style="margin: 0">Create your account</h2>
+            <div style="color: var(--muted); font-size: 13px">
+              Register as a user to request services
+            </div>
+          </div>
+        </div>
+
+        <form id="registerUserForm" novalidate>
+          <div class="form-group">
+            <label class="form-label">Full name</label>
+            <input name="name" class="form-control" required />
+            <div class="form-error" style="display: none"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input name="email" type="email" class="form-control" required />
+            <div class="form-error" style="display: none"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input
+              name="password"
+              type="password"
+              class="form-control"
+              required
+            />
+            <div class="form-error" style="display: none"></div>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <a href="/pages/auth/login.html" class="btn btn-secondary"
+              >Back to login</a
+            >
+            <button class="btn btn-primary" type="submit">
+              Create account
+            </button>
+          </div>
+        </form>
+
+        <div id="registerUserMessage" style="margin-top: 12px"></div>
+      </div>
+    </main>
+
+    <script type="module" src="/assets/js/pages/auth/register-user.js"></script>
+    <script type="module">
+      import { renderNavbarInto } from "/assets/js/components/navbar.js";
+      renderNavbarInto();
+    </script>
+  </body>
+</html>

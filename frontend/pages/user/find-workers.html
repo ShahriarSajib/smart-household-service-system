@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Find Workers - FixMate</title>
+    <link rel="stylesheet" href="../../assets/css/global.css" />
+  </head>
+  <body>
+    <div id="navbar"></div>
+
+    <div class="container mt-xl">
+      <h2 class="section-title">Find Nearby Workers</h2>
+
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Service Category</label>
+          <select id="serviceCategory" class="form-control">
+            <option value="">-- Select --</option>
+            <option>Electrical</option>
+            <option>Plumbing</option>
+            <option>Carpentry</option>
+            <option>Painting</option>
+            <option>AC Repair</option>
+          </select>
+        </div>
+
+        <button id="searchBtn" class="btn btn-primary">Search</button>
+      </div>
+
+      <div id="workerList" class="grid grid-3 mt-xl"></div>
+    </div>
+
+    <script
+      type="module"
+      src="../../assets/js/pages/user/find-workers.js"
+    ></script>
+    <script type="module" src="../../assets/js/components/navbar.js"></script>
+  </body>
+</html>

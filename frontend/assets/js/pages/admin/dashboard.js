@@ -1,0 +1,35 @@
+
+import { apiFetch } from "../../utils/api-client.js";
+import { ENDPOINTS } from "../../config/api.js";
+import { requireAuth } from "../../utils/auth.js";
+
+requireAuth("admin");
+
+const summary = document.getElementById("summary");
+
+async function loadSummary() {
+  summary.innerHTML = "<p>Loading...</p>";
+
+  try {
+    // use endpoints defined in config
+    const pendingRes = await apiFetch(ENDPOINTS.ADMIN.PENDING_WORKERS);
+    const requestsRes = await apiFetch(ENDPOINTS.ADMIN.WORK_REQUESTS);
+
+    // backend returns { data: [...] }
+    const pendingWorkers = Array.isArray(pendingRes?.data) ? pendingRes.data : [];
+    const workRequests = Array.isArray(requestsRes?.data) ? requestsRes.data : [];
+
+    summary.innerHTML = `
+      <div class="card" style="padding:15px; margin-bottom:1rem">
+        <p>Pending Workers: <b>${pendingWorkers.length}</b></p>
+      </div>
+      <div class="card" style="padding:15px; margin-bottom:1rem">
+        <p>Work Requests: <b>${workRequests.length}</b></p>
+      </div>
+    `;
+  } catch (err) {
+    summary.innerHTML = `<p style="color:var(--error)">${err.message || "Failed to load summary"}</p>`;
+  }
+}
+
+loadSummary();
