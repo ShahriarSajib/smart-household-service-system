@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Update Worker Profile - FixMate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/assets/css/global.css" />
+  </head>
+
+  <body>
+    <div id="navbar-dynamic"></div>
+
+    <main class="container" style="max-width: 500px; padding: 2rem">
+      <h2>Update Profile</h2>
+
+      <form id="updateForm">
+        <label>Name</label>
+        <input type="text" id="name" class="form-control" required />
+
+        <label>Phone</label>
+        <input type="text" id="phone" class="form-control" />
+
+        <label>Skill Category</label>
+        <select id="skill_category" class="form-control" required>
+          <option value="">Select Category</option>
+        </select>
+
+        <label>Profile Picture</label>
+        <input type="file" id="profilePic" class="form-control" />
+
+        <button id="saveBtn" class="btn btn-primary" style="margin-top: 15px">
+          Save Changes
+        </button>
+      </form>
+    </main>
+
+    <script
+      type="module"
+      src="/assets/js/pages/worker/update-profile.js"
+    ></script>
+    <script type="module">
+      import { renderNavbarInto } from "/assets/js/components/navbar.js";
+      renderNavbarInto();
+    </script>
+  </body>
+</html>

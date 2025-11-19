@@ -1,62 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>User Profile - FixMate</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="/assets/css/global.css">
-  <style>
-    .profile-pic {
-      width: 130px;
-      height: 130px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid var(--primary);
-      display: block;
-      margin: 0 auto;
-    }
-  </style>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>User Profile - FixMate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/assets/css/global.css" />
+  </head>
 
-<body>
-  <div id="navbar-dynamic"></div>
+  <body>
+    <div id="navbar-dynamic"></div>
 
-  <main class="container" style="max-width:500px; padding:2rem">
-    <h2>User Profile</h2>
+    <main class="container" style="max-width: 500px; padding: 2rem">
+      <h2>My Profile</h2>
 
-    <div style="text-align:center; margin:1rem 0">
-      <img id="profileImg" class="profile-pic" src="/assets/img/default-avatar.png" alt="Profile Picture">
-    </div>
-
-    <form id="profileForm">
-      <div class="form-group">
-        <label>Name</label>
-        <input id="name" type="text" class="form-control" required>
+      <!-- Profile Image -->
+      <div style="text-align: center; margin-bottom: 20px">
+        <img
+          id="profileImg"
+          src="/assets/img/default-avatar.png"
+          class="clickable-profile-img"
+          style="
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+          "
+        />
       </div>
 
-      <div class="form-group">
-        <label>Email</label>
-        <input id="email" type="email" class="form-control" required>
+      <!-- Fullscreen Modal -->
+      <div id="imgModal" class="img-modal">
+        <span id="imgModalClose" class="img-modal-close">&times;</span>
+        <img id="imgModalContent" />
       </div>
 
-      <div class="form-group">
-        <label>New Password (optional)</label>
-        <input id="password" type="password" class="form-control">
+      <div class="card" style="padding: 20px">
+        <p><b>Name:</b> <span id="name"></span></p>
+        <p><b>Email:</b> <span id="email"></span></p>
       </div>
 
-      <div class="form-group">
-        <label>Change Profile Picture</label>
-        <input id="profilePic" type="file" class="form-control">
-      </div>
+      <button
+        id="updateBtn"
+        class="btn btn-primary"
+        style="margin-top: 20px; width: 100%"
+      >
+        Update Profile
+      </button>
+    </main>
 
-      <button id="submitBtn" class="btn btn-primary" style="margin-top:1rem">Update Profile</button>
-    </form>
-  </main>
-
-  <script type="module" src="/assets/js/pages/user/profile.js"></script>
-  <script type="module">
-    import { renderNavbarInto } from "/assets/js/components/navbar.js";
-    renderNavbarInto("navbar-dynamic");
-  </script>
-</body>
+    <script type="module" src="/assets/js/pages/user/profile.js"></script>
+    <script type="module">
+      import { renderNavbarInto } from "/assets/js/components/navbar.js";
+      renderNavbarInto();
+    </script>
+  </body>
 </html>
