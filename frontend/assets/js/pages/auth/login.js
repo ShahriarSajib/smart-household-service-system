@@ -1,71 +1,83 @@
+import { ENDPOINTS } from "../../config/api.js";
+import { apiFetch } from "../../utils/api-client.js";
+import { applyLogin } from "../../utils/auth.js";
+import { toast } from "../../utils/toast.js";
+import { isEmail, minLength } from "../../utils/validation.js";
 
-import { apiFetch } from '../../utils/api-client.js';
-import { ENDPOINTS } from '../../config/api.js';
-import { applyLogin } from '../../utils/auth.js';
-import { toast } from '../../utils/toast.js';
-import { isEmail, minLength } from '../../utils/validation.js';
+const form = document.getElementById("loginForm");
+const msgEl = document.getElementById("loginMessage");
+const roleSelect = document.getElementById("role");
 
-const form = document.getElementById('loginForm');
-const msgEl = document.getElementById('loginMessage');
+// Parse URL parameter (?as=admin)
+const params = new URLSearchParams(window.location.search);
+const forceAdmin = params.get("as") === "admin";
 
+// Fill dropdown
+if (forceAdmin) {
+  roleSelect.innerHTML = `<option value="admin" selected>Admin</option>`;
+  roleSelect.disabled = true;
+} else {
+  roleSelect.innerHTML = `
+    <option value="user">User</option>
+    <option value="worker">Worker</option>
+  `;
+}
+
+// Helpers
 function showError(input, text) {
-  const el = input.parentElement.querySelector('.form-error');
-  if (el) { el.style.display = 'block'; el.textContent = text; }
-  input.classList.add('error');
+  const el = input.parentElement.querySelector(".form-error");
+  if (el) {
+    el.style.display = "block";
+    el.textContent = text;
+  }
+  input.classList.add("error");
 }
 
 function clearErrors(form) {
-  form.querySelectorAll('.form-error').forEach(e => { e.style.display = 'none'; e.textContent = ''; });
-  form.querySelectorAll('.form-control').forEach(i => i.classList.remove('error'));
+  form.querySelectorAll(".form-error").forEach((e) => {
+    e.style.display = "none";
+    e.textContent = "";
+  });
+  form.querySelectorAll(".form-control").forEach((i) => i.classList.remove("error"));
 }
 
-form.addEventListener('submit', async (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
   clearErrors(form);
-  msgEl.textContent = '';
+  msgEl.textContent = "";
 
   const email = form.email.value.trim();
   const password = form.password.value;
+  const role = roleSelect.value.trim();
 
-  // client validation
-  if (!isEmail(email)) {
-    showError(form.email, 'Please enter a valid email');
-    return;
-  }
-  if (!minLength(password, 6)) {
-    showError(form.password, 'Password must be at least 6 characters');
-    return;
-  }
+  if (!isEmail(email)) return showError(form.email, "Please enter a valid email");
+  if (!minLength(password, 6))
+    return showError(form.password, "Password must be at least 6 characters");
 
   try {
     const data = await apiFetch(ENDPOINTS.AUTH.LOGIN, {
-      method: 'POST',
-      body: { email, password },
-      timeout: 12000,
+    method: "POST",
+    body: { email, password, role },
     });
 
-    // backend returns token and user object
-    const token = data.token || (data.data && data.data.token);
-    const user = data.user || (data.data && data.data.user);
+
+    const token = data.token;
+    const user = data.user;
 
     if (!token || !user) {
-      // sometimes backend returns { status: 'error', message: '...' }
-      const errMsg = data.message || 'Login failed';
-      toast.error(errMsg);
-      msgEl.textContent = errMsg;
+      toast.error("Login failed");
+      msgEl.textContent = "Login failed";
       return;
     }
 
     applyLogin(token, user);
-    toast.success('Login successful');
+    toast.success("Login successful");
 
-    // redirect based on role
-    const role = user.role || 'user';
-    if (role === 'admin') location.href = '/pages/admin/dashboard.html';
-    else if (role === 'worker') location.href = '/pages/worker/dashboard.html';
-    else location.href = '/pages/user/dashboard.html';
+    if (role === "admin") window.location.href = "/pages/admin/dashboard.html";
+    else if (role === "worker") window.location.href = "/pages/worker/dashboard.html";
+    else window.location.href = "/pages/user/dashboard.html";
   } catch (err) {
-    toast.error(err.message || 'Login failed');
-    msgEl.textContent = err.message || 'Login failed';
+    toast.error(err.message);
+    msgEl.textContent = err.message;
   }
 });

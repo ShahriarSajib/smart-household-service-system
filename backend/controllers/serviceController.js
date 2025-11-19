@@ -4,8 +4,17 @@ import { error, success } from "../utils/responseHelper.js";
 // Create request (modified to accept optional selected_worker_id)
 export const createRequest = async (req, res) => {
   try {
-    const user_id = req.user.id; // from token
-    const { category, description, location, latitude, longitude, selected_worker_id } = req.body;
+    const user_id = req.user.id;
+
+    const {
+      category,
+      description,
+      location,
+      latitude,
+      longitude,
+      selected_worker_id,
+      problem_pic    // base64 string (optional)
+    } = req.body;
 
     if (!category || !description || !location || !latitude || !longitude)
       return res.status(400).json(error("All fields are required"));
@@ -13,32 +22,55 @@ export const createRequest = async (req, res) => {
     let assignedWorkerId = null;
     let status = "Pending";
 
-    // If frontend provided a selected worker id, validate and assign that worker
+    // ------------------------------------------------------
+    // 📌 1) Convert Base64 → Buffer (if exists)
+    // ------------------------------------------------------
+    let problemPicBuffer = null;
+
+    if (problem_pic) {
+      try {
+        // Remove metadata prefix "data:image/jpeg;base64,"
+        const base64Data = problem_pic.split(',')[1] || problem_pic;
+        problemPicBuffer = Buffer.from(base64Data, "base64");
+      } catch (e) {
+        console.error("Base64 decode error:", e);
+        return res.status(400).json(error("Invalid image format"));
+      }
+    }
+
+    // ------------------------------------------------------
+    // 📌 2) Worker selected manually
+    // ------------------------------------------------------
     if (selected_worker_id) {
-      // check existence & availability & skill_category
       const [workerRows] = await query(
         "SELECT id, skill_category, availability FROM workers WHERE id = ?",
         [selected_worker_id]
       );
 
-      if (!workerRows.length) {
+      if (!workerRows.length)
         return res.status(400).json(error("Selected worker not found"));
-      }
 
       const worker = workerRows[0];
 
-      if (worker.skill_category && worker.skill_category.toLowerCase() !== String(category).toLowerCase()) {
-        return res.status(400).json(error("Selected worker does not match the requested category"));
+      if (
+        worker.skill_category &&
+        worker.skill_category.toLowerCase() !== String(category).toLowerCase()
+      ) {
+        return res.status(400).json(
+          error("Selected worker does not match the requested category")
+        );
       }
 
-      if (worker.availability !== 'Available') {
-        return res.status(400).json(error("Selected worker is not currently available"));
-      }
+      if (worker.availability !== "Available")
+        return res.status(400).json(error("Selected worker is not available"));
 
       assignedWorkerId = worker.id;
-      status = "Assigned"; // worker must accept -> they will change to Accepted
-    } else {
-      // Auto-match: Find nearest available worker in same category (existing Haversine logic)
+      status = "Assigned";
+    } 
+    else {
+      // ------------------------------------------------------
+      // 📌 3) Auto-assign nearest worker
+      // ------------------------------------------------------
       const [workers] = await query(
         `SELECT id, latitude, longitude,
                 (6371 * ACOS(
@@ -57,29 +89,39 @@ export const createRequest = async (req, res) => {
       if (workers.length > 0) {
         assignedWorkerId = workers[0].id;
         status = "Assigned";
-      } else {
-        assignedWorkerId = null;
-        status = "Pending";
       }
     }
 
-    // Save service request
+    // ------------------------------------------------------
+    // 📌 4) INSERT Request with image buffer (LONGBLOB)
+    // ------------------------------------------------------
     const [result] = await query(
       `INSERT INTO service_requests 
-        (user_id, category, description, location, latitude, longitude, status, assigned_worker_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [user_id, category, description, location, latitude, longitude, status, assignedWorkerId]
+        (user_id, category, description, location, latitude, longitude, status, assigned_worker_id, problem_pic)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        user_id,
+        category,
+        description,
+        location,
+        latitude,
+        longitude,
+        status,
+        assignedWorkerId,
+        problemPicBuffer
+      ]
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       ...success("Service request created successfully"),
       request_id: result.insertId,
       assigned_worker_id: assignedWorkerId,
-      status,
+      status
     });
+
   } catch (err) {
     console.error("Create request error:", err);
-    res.status(500).json(error("Server error"));
+    return res.status(500).json(error("Server error"));
   }
 };
 
@@ -187,33 +229,56 @@ export const rejectRequest = async (req, res) => {
   }
 };
 
+// Get all requests by a user (now includes problem_pic base64)
 // Get all requests by a user
 export const getUserRequests = async (req, res) => {
   try {
     const { id } = req.params;
+
     const [rows] = await query(
       `SELECT 
-         sr.*, 
+         sr.id,
+         sr.user_id,
+         sr.category,
+         sr.description,
+         sr.location,
+         sr.latitude,
+         sr.longitude,
+         sr.status,
+         sr.assigned_worker_id,
+         sr.created_at,
+         sr.problem_pic,   -- IMPORTANT
          w.name AS worker_name, 
          w.phone AS worker_phone,
          w.skill_category,
          EXISTS(
-          SELECT 1 FROM ratings 
-          WHERE ratings.request_id = sr.id 
-            AND ratings.rater_id = sr.user_id
-        ) AS user_has_rated
+            SELECT 1 FROM ratings 
+            WHERE ratings.request_id = sr.id 
+              AND ratings.rater_id = sr.user_id
+         ) AS user_has_rated
        FROM service_requests sr 
        LEFT JOIN workers w ON sr.assigned_worker_id = w.id 
-       WHERE sr.user_id = ? 
+       WHERE sr.user_id = ?
        ORDER BY sr.created_at DESC`,
       [id]
     );
 
-    res.json(rows);
+    // Convert BLOB → Base64 for frontend
+    const formatted = rows.map(r => {
+      if (r.problem_pic)
+        r.problem_pic = `data:image/jpeg;base64,${r.problem_pic.toString("base64")}`;
+      return r;
+    });
+
+    res.json(formatted);
+
   } catch (err) {
+    console.error("getUserRequests error:", err);
     res.status(500).json(error(err.message));
   }
 };
+
+
 
 // Get all requests for a worker
 export const getWorkerRequests = async (req, res) => {

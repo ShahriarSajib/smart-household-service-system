@@ -19,16 +19,35 @@ const latitudeInput = document.getElementById("latitudeInput");
 const longitudeInput = document.getElementById("longitudeInput");
 const locationInput = document.getElementById("locationInput");
 
+// Image upload
+const fileInput = document.getElementById("imageInput");
+const previewImg = document.getElementById("previewImg");
+let base64Image = null;
+
 // Require login
 const user = getUser();
 if (!user) window.location.href = "/pages/auth/login.html";
 
-// Populate category dropdown
+// Populate categories
 CATEGORIES.forEach(cat => {
-  const option = document.createElement("option");
-  option.value = cat;
-  option.textContent = cat;
-  categorySelect.appendChild(option);
+  const opt = document.createElement("option");
+  opt.value = cat;
+  opt.textContent = cat;
+  categorySelect.appendChild(opt);
+});
+
+// File → Base64
+fileInput.addEventListener("change", () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    base64Image = reader.result;   // FULL base64 string
+    previewImg.src = base64Image;
+    previewImg.style.display = "block";
+  };
+  reader.readAsDataURL(file);
 });
 
 // Clear selection
@@ -39,7 +58,7 @@ clearSelectionBtn.addEventListener("click", () => {
   toast.info("Selection cleared");
 });
 
-// GPS button
+// GPS
 gpsBtn.addEventListener("click", () => {
   if (!navigator.geolocation) return toast.error("Geolocation not supported");
 
@@ -53,7 +72,7 @@ gpsBtn.addEventListener("click", () => {
       gpsBtn.textContent = "Use GPS";
       gpsBtn.disabled = false;
     },
-    err => {
+    () => {
       gpsBtn.textContent = "Use GPS";
       gpsBtn.disabled = false;
       toast.error("Unable to fetch location");
@@ -81,9 +100,8 @@ findNearbyBtn.addEventListener("click", async () => {
 
   try {
     const url = `${ENDPOINTS.WORKERS.GET_NEARBY}?lat=${lat}&lng=${lng}&radius=5`;
-    const workers = await apiFetch(url, { method: "GET" });
+    const workers = await apiFetch(url);
 
-    // Filter both by category & availability
     const filtered = workers.filter(
       w =>
         w.skill_category?.toLowerCase() === category.toLowerCase() &&
@@ -91,7 +109,7 @@ findNearbyBtn.addEventListener("click", async () => {
     );
 
     if (!filtered.length) {
-      nearbyList.innerHTML = "<p>No available workers in this category nearby.</p>";
+      nearbyList.innerHTML = "<p>No workers available nearby.</p>";
       nearbyArea.style.display = "block";
       return;
     }
@@ -109,7 +127,6 @@ findNearbyBtn.addEventListener("click", async () => {
 
     nearbyArea.style.display = "block";
   } catch (err) {
-    msg.textContent = err.message || "Failed to load workers";
     toast.error(err.message);
   } finally {
     findNearbyBtn.disabled = false;
@@ -117,7 +134,7 @@ findNearbyBtn.addEventListener("click", async () => {
   }
 });
 
-// Submit
+// FORM SUBMIT
 form.addEventListener("submit", async e => {
   e.preventDefault();
 
@@ -127,14 +144,19 @@ form.addEventListener("submit", async e => {
     location: locationInput.value.trim(),
     latitude: latitudeInput.value.trim(),
     longitude: longitudeInput.value.trim(),
+    problem_pic: base64Image || null  // include base64 string
   };
 
   if (selectedWorkerInput.value)
     payload.selected_worker_id = selectedWorkerInput.value;
 
   try {
-    await apiFetch(ENDPOINTS.REQUESTS.CREATE, { method: "POST", body: payload });
-    toast.success("Request created");
+    await apiFetch(ENDPOINTS.REQUESTS.CREATE, {
+      method: "POST",
+      body: payload
+    });
+
+    toast.success("Request created successfully");
 
     setTimeout(() => {
       window.location.href = "/pages/user/my-requests.html";

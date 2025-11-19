@@ -127,30 +127,47 @@ export const verifyEmail = async (req, res) => {
   }
 };
 
-// Login (user or worker)
+// Login (role-based)
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
-    const [userRows] = await query("SELECT * FROM users WHERE email = ?", [email]);
-    const [workerRows] = await query("SELECT * FROM workers WHERE email = ?", [email]);
+    if (!email || !password || !role)
+      return res.status(400).json(error("Email, password and role are required"));
 
-    const account = userRows[0] || workerRows[0];
-    if (!account)
-      return res.status(404).json(error("Account not found"));
+    let account = null;
 
-    //Check if email is verified
+    if (role === "user" || role === "admin") {
+    const [rows] = await query(
+    "SELECT * FROM users WHERE email = ? AND role = ?",
+    [email, role]
+    );
+
+     account = rows[0];
+
+    if (!account) {
+     return res.status(404).json(error("No account found with this email and role"));
+    }
+    }
+
+
+    if (role === "worker") {
+      const [rows] = await query("SELECT * FROM workers WHERE email = ?", [email]);
+      account = rows[0];
+      if (!account) return res.status(404).json(error("Worker not found"));
+    }
+
     if (account.email_verified === 0)
       return res.status(403).json(error("Please verify your email before logging in."));
 
     const match = await bcrypt.compare(password, account.password_hash);
-    if (!match)
-      return res.status(400).json(error("Invalid credentials"));
+    if (!match) return res.status(400).json(error("Invalid credentials"));
 
-    const role = userRows.length > 0 ? account.role : "worker";
-    const token = jwt.sign({ id: account.id, role }, process.env.JWT_SECRET, {
-      expiresIn: "8h",
-    });
+    const token = jwt.sign(
+      { id: account.id, role },
+      process.env.JWT_SECRET,
+      { expiresIn: "8h" }
+    );
 
     res.json({
       ...success("Login successful"),
@@ -162,6 +179,7 @@ export const login = async (req, res) => {
     res.status(500).json(error(err.message));
   }
 };
+
 
 // Change password (authenticated)
 export const changePassword = async (req, res) => {

@@ -14,20 +14,25 @@
       <section class="hero">
         <div class="hero-content">
           <h1 class="hero-title">
-            Professional Home Services <br /><span class="gradient-text"
-              >At Your Fingertips</span
-            >
+            Professional Home Services <br /><span class="gradient-text">
+              At Your Fingertips
+            </span>
           </h1>
+
           <p class="hero-subtitle">
             Connect with verified, rated professionals near you.
           </p>
+
           <div class="hero-cta" style="margin-top: 1.5rem">
-            <a class="btn btn-primary" href="/pages/auth/register-user.html"
-              >Book a Service</a
+            <a class="btn btn-primary" href="/pages/auth/register-user.html">
+              Book a Service
+            </a>
+            <a
+              class="btn btn-secondary"
+              href="/pages/auth/register-worker.html"
             >
-            <a class="btn btn-secondary" href="/pages/auth/register-worker.html"
-              >Join as Worker</a
-            >
+              Join as Worker
+            </a>
           </div>
 
           <div style="margin-top: 2.2rem" class="hero-stats">
@@ -45,6 +50,7 @@
             </div>
           </div>
         </div>
+
         <div class="hero-visual" aria-hidden="true">
           <div class="floating-card card-1">🔨 Carpentry</div>
           <div class="floating-card card-2">🔌 Electrical</div>
@@ -63,7 +69,26 @@
           "
         >
           <div><strong>FixMate</strong> — 2025</div>
-          <div><a href="/pages/auth/login.html">Sign in</a></div>
+
+          <div style="display: flex; gap: 12px">
+            <!-- Normal Login -->
+            <a
+              href="/pages/auth/login.html"
+              class="btn btn-secondary"
+              style="padding: 6px 14px"
+            >
+              Sign in
+            </a>
+
+            <!-- Login as Admin -->
+            <a
+              href="/pages/auth/login.html?as=admin"
+              class="btn btn-primary"
+              style="padding: 6px 14px"
+            >
+              Login as Admin
+            </a>
+          </div>
         </div>
       </div>
     </footer>

@@ -11,8 +11,8 @@ import adminRoutes from "./routes/adminRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import ratingRoutes from "./routes/ratingRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
-import workerRoutes from "./routes/workerRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import workerRoutes from "./routes/workerRoutes.js";
 
 import requestLogger from "./middleware/requestLogger.js";
 import logger from "./utils/logger.js";
@@ -28,7 +28,7 @@ const __dirname = path.dirname(__filename);
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "20mb" }));
 app.use(requestLogger);
 
 // API Routes
