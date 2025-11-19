@@ -129,17 +129,17 @@ PORT=5000
 
 DB_HOST=localhost
 DB_USER=root
-DB_PASS=webtech
+DB_PASS=
 DB_NAME=fixmate_db
 
 JWT_SECRET=yourSecretKey
 BASE_URL=http://localhost:5000
 
 SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
+SMTP_PORT=
 SMTP_SECURE=false
-SMTP_USER=mohaiminulislam20000@gmail.com
-SMTP_PASS=kgaw mdjp vfyb jnsm
+SMTP_USER=
+SMTP_PASS=
 SMTP_FROM="FixMate <no-reply@fixmate.local>"
 ```
 
