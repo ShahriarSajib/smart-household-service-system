@@ -107,4 +107,4 @@ ALTER TABLE workers ADD phone VARCHAR(20);
 ALTER TABLE service_requests ADD user_has_rated BOOLEAN DEFAULT FALSE;
 
 ALTER TABLE users ADD COLUMN profilePic LONGBLOB NULL;
-
+ALTER TABLE workers ADD COLUMN profilePic LONGBLOB NULL;

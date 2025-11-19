@@ -12,6 +12,10 @@ export const ENDPOINTS = {
     RESET_PASSWORD: '/auth/reset-password',
     CHANGE_PASSWORD: '/auth/change-password',
   },
+  USER: {
+  GET_PROFILE: (id) => `/users/profile/${id}`,
+  UPDATE_PROFILE: (id) => `/users/profile/update/${id}`,
+  },
   ADMIN: {
     PENDING_WORKERS: '/admin/workers/pending',
     APPROVE_WORKER: (id) => `/admin/workers/${id}/approve`,
@@ -21,7 +25,8 @@ export const ENDPOINTS = {
     UPDATE_PROFILE: '/admin/profile/update',
   },
   WORKERS: {
-    GET_PROFILE: (id) => `/workers/${id}`,
+    GET_PROFILE: (id) => `/workers/profile/${id}`,
+    UPDATE_PROFILE: (id) => `/workers/profile/update/${id}`,
     UPDATE_STATUS: (id) => `/workers/${id}/status`,
     UPDATE_LOCATION: (id) => `/workers/${id}/location`,
     GET_REQUESTS: (id) => `/workers/${id}/requests`,

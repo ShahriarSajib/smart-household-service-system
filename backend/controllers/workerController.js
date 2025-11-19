@@ -1,36 +1,6 @@
 import { query } from "../config/db.js";
 import { error, success } from "../utils/responseHelper.js";
 
-// GET worker profile
-export const getWorkerProfile = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { lat, lng } = req.query;
-
-    const [worker] = await query("SELECT * FROM workers WHERE id = ?", [id]);
-    if (!worker.length)
-      return res.status(404).json(error("Worker not found"));
-
-    let workerData = worker[0];
-
-    if (lat && lng && workerData.latitude && workerData.longitude) {
-      const [distanceResult] = await query(
-        `SELECT (6371 * ACOS(
-          COS(RADIANS(?)) * COS(RADIANS(?)) *
-          COS(RADIANS(?) - RADIANS(?)) +
-          SIN(RADIANS(?)) * SIN(RADIANS(?))
-        )) AS distance`,
-        [lat, workerData.latitude, workerData.longitude, lng, lat, workerData.latitude]
-      );
-      workerData.distance_km = distanceResult[0].distance.toFixed(2);
-    }
-
-    res.json(workerData);
-  } catch (err) {
-    res.status(500).json(error(err.message));
-  }
-};
-
 // Update worker availability (manual override)
 export const updateAvailability = async (req, res) => {
   try {
@@ -137,5 +107,64 @@ export const getNearbyWorkers = async (req, res) => {
     res.json(workers);
   } catch (err) {
     res.status(500).json(error(err.message));
+  }
+};
+
+// GET worker profile
+export const getWorkerProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [rows] = await query(
+      "SELECT id, name, email, skill_category, availability, profilePic FROM workers WHERE id=?",
+      [id]
+    );
+
+    if (!rows.length)
+      return res.status(404).json(error("Worker not found"));
+
+    const worker = rows[0];
+
+    // Convert BLOB → Base64
+    if (worker.profilePic)
+      worker.profilePic = `data:image/jpeg;base64,${worker.profilePic.toString("base64")}`;
+
+    return res.json({ data: worker });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json(error(err.message));
+  }
+};
+
+// UPDATE WORKER PROFILE
+export const updateWorkerProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, skill_category } = req.body;
+
+    let profilePic = null;
+    if (req.file) profilePic = req.file.buffer;
+
+    const updates = [];
+    const values = [];
+
+    if (name) { updates.push("name=?"); values.push(name); }
+    if (email) { updates.push("email=?"); values.push(email); }
+    if (skill_category) { updates.push("skill_category=?"); values.push(skill_category); }
+    if (profilePic) { updates.push("profilePic=?"); values.push(profilePic); }
+
+    if (!updates.length)
+      return res.status(400).json(error("Nothing to update"));
+
+    values.push(id);
+
+    await query(`UPDATE workers SET ${updates.join(", ")} WHERE id=?`, values);
+
+    return res.json(success("Worker profile updated successfully"));
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json(error(err.message));
   }
 };

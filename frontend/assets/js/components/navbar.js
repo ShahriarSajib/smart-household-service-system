@@ -65,12 +65,14 @@ export function renderNavbarInto(targetId = 'navbar-dynamic') {
       right.appendChild(createLink('/pages/user/dashboard.html', 'Dashboard'));
       right.appendChild(createLink('/pages/user/my-requests.html', 'My Requests'));
       right.appendChild(createLink('/pages/user/create-request.html', 'Create Request'));
+      right.appendChild(createLink('/pages/user/profile.html', 'Profile'));
     }
 
     if (user.role === 'worker') {
       right.appendChild(createLink('/pages/worker/dashboard.html', 'Dashboard'));
       right.appendChild(createLink('/pages/worker/my-requests.html', 'My Jobs'));
       right.appendChild(createLink('/pages/worker/ratings.html', 'Ratings'));
+      right.appendChild(createLink('/pages/worker/profile.html', 'Profile'));
     }
 
    if (user.role === 'admin') {
