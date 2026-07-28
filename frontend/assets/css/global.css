@@ -20,6 +20,9 @@
   --border: #334155;
   --radius: 12px;
   --gap: 12px;
+
+  /* Fixed header height (padding ×2 + line-height + border) */
+  --navbar-height: 70px;
 }
 
 * {
@@ -37,6 +40,8 @@ html, body {
   line-height: 1.6;
   overflow-x: hidden;
 }
+
+
 
 /* ----------------------------------------------------
    LAYOUT UTILITIES
