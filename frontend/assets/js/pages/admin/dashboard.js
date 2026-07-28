@@ -22,10 +22,10 @@ async function loadSummary() {
     const workRequests = Array.isArray(requestsRes?.data) ? requestsRes.data : [];
 
     summary.innerHTML = `
-      <div class="card" style="padding:15px; margin-bottom:1rem">
+      <div class="card p-md mb-md">
         <p>Pending Workers: <b>${pendingWorkers.length}</b></p>
       </div>
-      <div class="card" style="padding:15px; margin-bottom:1rem">
+      <div class="card p-md mb-md">
         <p>Work Requests: <b>${workRequests.length}</b></p>
       </div>
     `;

@@ -26,7 +26,7 @@ async function loadRatings() {
     const ratings = res.ratings || [];
 
     summary.innerHTML = `
-      <div class="card" style="padding:15px">
+      <div class="card p-md">
         <h3>${workerSummary.name}</h3>
         <p>⭐ Rating: <b>${workerSummary.rating?.toFixed(1) || "0.0"}</b></p>
         <p>Total Reviews: ${workerSummary.rating_count}</p>
@@ -42,14 +42,12 @@ async function loadRatings() {
 
     ratings.forEach(r => {
       const div = document.createElement("div");
-      div.className = "card";
-      div.style.padding = "15px";
-      div.style.marginBottom = "10px";
+      div.className = "card p-md mb-md";
 
       div.innerHTML = `
         <p>⭐ ${r.score}</p>
         <p>${r.comment || "No comment"}</p>
-        <div style="font-size:13px;color:var(--muted)">
+        <div class="text-muted" style="font-size:13px">
           by ${r.rater_name} (${new Date(r.created_at).toLocaleString()})
         </div>
       `;

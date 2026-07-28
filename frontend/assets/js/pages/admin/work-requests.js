@@ -55,9 +55,7 @@ function renderRequests() {
 
   list.forEach(r => {
     const card = document.createElement("div");
-    card.className = "card";
-    card.style.padding = "12px";
-    card.style.marginBottom = "12px";
+    card.className = "card p-md mb-md";
 
     card.innerHTML = `
       <h4>${r.category} - <span class="status">${r.status}</span></h4>
@@ -65,7 +63,7 @@ function renderRequests() {
       <p><b>Description:</b> ${r.description}</p>
       <p><b>Location:</b> ${r.location || "N/A"}</p>
       <p><b>Assigned Worker ID:</b> ${r.assigned_worker_id || "Not assigned"}</p>
-      <p style="font-size:13px;color:var(--muted)">⏱ ${new Date(r.created_at).toLocaleString()}</p>
+      <p class="text-muted" style="font-size:13px">⏱ ${new Date(r.created_at).toLocaleString()}</p>
     `;
 
     container.appendChild(card);

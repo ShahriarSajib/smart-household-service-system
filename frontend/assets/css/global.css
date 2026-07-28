@@ -564,6 +564,75 @@ select.form-control option {
 }
 
 /* ----------------------------------------------------
+   UTILITY CLASSES
+---------------------------------------------------- */
+.flex-row { display: flex; align-items: center; gap: var(--gap); }
+.flex-col { display: flex; flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-1 { flex: 1; }
+.gap-xs { gap: 4px; }
+.gap-sm { gap: 8px; }
+.gap-md { gap: 12px; }
+.gap-lg { gap: 20px; }
+.card-grid { display: flex; gap: 20px; flex-wrap: wrap; }
+.text-muted { color: var(--text-muted); }
+.text-center { text-align: center; }
+.mt-sm { margin-top: 8px; }
+.mt-md { margin-top: 12px; }
+.mt-lg { margin-top: 20px; }
+.mb-sm { margin-bottom: 8px; }
+.mb-md { margin-bottom: 12px; }
+.mb-lg { margin-bottom: 20px; }
+.p-sm { padding: 8px; }
+.p-md { padding: 12px; }
+.p-lg { padding: 20px; }
+.w-100 { width: 100%; }
+.d-flex { display: flex; }
+.justify-between { justify-content: space-between; }
+.align-center { align-items: center; }
+.gap-10 { gap: 10px; }
+.max-w-180 { max-width: 180px; }
+
+/* Form validation */
+.form-error {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: none;
+}
+.form-control.error {
+  border-color: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.3);
+}
+
+/* Responsive card table for mobile */
+.card-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Preview image */
+.preview-img {
+  display: none;
+  width: 160px;
+  margin-top: 10px;
+  border-radius: 8px;
+}
+.preview-img.show {
+  display: block;
+}
+
+/* Profile avatar */
+.profile-avatar {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary);
+}
+
+/* ----------------------------------------------------
    RESPONSIVE
 ---------------------------------------------------- */
 @media (max-width: 768px) {

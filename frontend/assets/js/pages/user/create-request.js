@@ -4,6 +4,7 @@ import { CATEGORIES } from "../../config/categories.js";
 import { apiFetch } from "../../utils/api-client.js";
 import { getUser } from "../../utils/storage.js";
 import { toast } from "../../utils/toast.js";
+import { bindValidation, validateForm, clearFormErrors } from "../../utils/validation.js";
 
 // DOM
 const form = document.getElementById("requestForm");
@@ -24,6 +25,9 @@ const fileInput = document.getElementById("imageInput");
 const previewImg = document.getElementById("previewImg");
 let base64Image = null;
 
+// Wire blur validation
+bindValidation(form);
+
 // Require login
 const user = getUser();
 if (!user) window.location.href = "/pages/auth/login.html";
@@ -43,9 +47,9 @@ fileInput.addEventListener("change", () => {
 
   const reader = new FileReader();
   reader.onload = () => {
-    base64Image = reader.result;   // FULL base64 string
+    base64Image = reader.result;
     previewImg.src = base64Image;
-    previewImg.style.display = "block";
+    previewImg.classList.add("show");
   };
   reader.readAsDataURL(file);
 });
@@ -138,13 +142,16 @@ findNearbyBtn.addEventListener("click", async () => {
 form.addEventListener("submit", async e => {
   e.preventDefault();
 
+  clearFormErrors(form);
+  if (!validateForm(form)) return;
+
   const payload = {
     category: categorySelect.value,
     description: form.description.value.trim(),
     location: locationInput.value.trim(),
     latitude: latitudeInput.value.trim(),
     longitude: longitudeInput.value.trim(),
-    problem_pic: base64Image || null  // include base64 string
+    problem_pic: base64Image || null
   };
 
   if (selectedWorkerInput.value)

@@ -3,6 +3,7 @@ import { apiFetch } from "../../utils/api-client.js";
 import { requireAuth } from "../../utils/auth.js";
 import { getUser, saveUser } from "../../utils/storage.js";
 import { toast } from "../../utils/toast.js";
+import { bindValidation, validateForm, clearFormErrors } from "../../utils/validation.js";
 
 requireAuth("user");
 
@@ -31,9 +32,14 @@ async function loadCurrent() {
 
 loadCurrent();
 
+bindValidation(form);
+
 // Update submit handler
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  clearFormErrors(form);
+  if (!validateForm(form)) return;
 
   saveBtn.disabled = true;
   saveBtn.textContent = "Saving...";

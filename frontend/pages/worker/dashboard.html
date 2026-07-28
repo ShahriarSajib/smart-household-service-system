@@ -10,12 +10,12 @@
   <body>
     <div id="navbar-dynamic"></div>
 
-    <main class="container" style="padding: 2rem; max-width: 900px">
+    <main class="container p-lg" style="max-width: 900px">
       <h2>Welcome Worker 👷</h2>
-      <p style="color: var(--muted)">Manage your assigned service requests.</p>
+      <p class="text-muted">Manage your assigned service requests.</p>
 
       <!-- ACTION BUTTONS -->
-      <div style="margin-top: 2rem; display: flex; gap: 20px; flex-wrap: wrap">
+      <div class="card-grid mt-lg">
         <a href="/pages/worker/my-requests.html" class="btn btn-primary">
           📄 My Requests
         </a>
@@ -40,8 +40,8 @@
       <!-- AVAILABILITY FORM -->
       <div
         id="availabilityForm"
-        style="display: none; margin-top: 20px"
-        class="card"
+        class="card mt-lg"
+        style="display: none"
       >
         <h3>Update Availability</h3>
 
@@ -49,13 +49,13 @@
         <label><input type="radio" name="availability" value="Busy" /> Busy</label>
         <label><input type="radio" name="availability" value="Offline" /> Offline</label>
 
-        <button id="submitAvailability" class="btn btn-primary" style="margin-top: 12px">
+        <button id="submitAvailability" class="btn btn-primary mt-md">
           Submit
         </button>
       </div>
 
       <!-- RECENT REQUESTS -->
-      <section style="margin-top: 2rem">
+      <section class="mt-lg">
         <h3>Recent Assigned Work</h3>
         <div id="recentRequests"></div>
       </section>

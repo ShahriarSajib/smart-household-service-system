@@ -9,20 +9,20 @@
   <body>
     <div id="navbar-dynamic"></div>
 
-    <main class="container" style="padding: 2rem; max-width: 900px">
+    <main class="container p-lg" style="max-width: 900px">
       <h2>Admin Dashboard</h2>
-      <p style="color: var(--muted)">Manage workers and system status.</p>
+      <p class="text-muted">Manage workers and system status.</p>
 
-      <section style="margin-top: 2rem">
+      <section class="mt-lg flex-row gap-sm">
         <a href="/pages/admin/pending-workers.html" class="btn btn-primary">
           Pending Workers Approval
         </a>
-        <a href="/pages/admin/work-requests.html" class="btn btn-secondary" style="margin-left:1rem">
+        <a href="/pages/admin/work-requests.html" class="btn btn-secondary">
           Work Requests
         </a>
       </section>
 
-      <section style="margin-top: 2rem">
+      <section class="mt-lg">
         <h3>System Summary</h3>
         <div id="summary"></div>
       </section>

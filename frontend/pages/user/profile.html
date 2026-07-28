@@ -10,22 +10,15 @@
   <body>
     <div id="navbar-dynamic"></div>
 
-    <main class="container" style="max-width: 500px; padding: 2rem">
+    <main class="container p-lg" style="max-width: 500px">
       <h2>My Profile</h2>
 
       <!-- Profile Image -->
-      <div style="text-align: center; margin-bottom: 20px">
+      <div class="text-center mb-lg">
         <img
           id="profileImg"
           src="/assets/img/default-avatar.png"
-          class="clickable-profile-img"
-          style="
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--primary);
-          "
+          class="clickable-profile-img profile-avatar"
         />
       </div>
 
@@ -35,15 +28,14 @@
         <img id="imgModalContent" />
       </div>
 
-      <div class="card" style="padding: 20px">
+      <div class="card p-lg">
         <p><b>Name:</b> <span id="name"></span></p>
         <p><b>Email:</b> <span id="email"></span></p>
       </div>
 
       <button
         id="updateBtn"
-        class="btn btn-primary"
-        style="margin-top: 20px; width: 100%"
+        class="btn btn-primary mt-lg w-100"
       >
         Update Profile
       </button>

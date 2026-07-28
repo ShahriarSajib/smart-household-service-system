@@ -10,26 +10,28 @@
 
 <div id="navbar-dynamic"></div>
 
-<main class="container" style="padding:2rem;max-width:900px">
+<main class="container p-lg" style="max-width:900px">
   <h2>Update Your Location 📍</h2>
-  <p style="color:var(--muted)">Your location helps users find nearby workers.</p>
+  <p class="text-muted">Your location helps users find nearby workers.</p>
 
   <button class="btn btn-primary" id="gpsBtn">Use GPS</button>
 
-  <form id="locForm" style="margin-top:1.5rem">
+  <form id="locForm" class="mt-lg">
     <div class="form-group">
-      <label>Latitude</label>
+      <label class="form-label">Latitude</label>
       <input name="latitude" class="form-control" required>
+      <div class="form-error"></div>
     </div>
     <div class="form-group">
-      <label>Longitude</label>
+      <label class="form-label">Longitude</label>
       <input name="longitude" class="form-control" required>
+      <div class="form-error"></div>
     </div>
 
-    <button class="btn btn-primary" style="margin-top:1rem">Update</button>
+    <button class="btn btn-primary mt-md">Update</button>
   </form>
 
-  <div id="message" style="margin-top:1rem"></div>
+  <div id="message" class="mt-md"></div>
 </main>
 
 <script type="module" src="/assets/js/pages/worker/update-location.js"></script>
