@@ -1,3 +1,41 @@
+const EMPTY_ICONS = {
+  request: '📋',
+  worker: '👷',
+  rating: '⭐',
+  'pending-worker': '🕐',
+  'admin-request': '📄',
+  summary: '📊',
+};
+
+const EMPTY_TITLES = {
+  request: 'No Requests Yet',
+  worker: 'No Workers Found',
+  rating: 'No Ratings Yet',
+  'pending-worker': 'No Pending Workers',
+  'admin-request': 'No Work Requests',
+  summary: 'No Data',
+};
+
+const EMPTY_SUBTITLES = {
+  request: 'Your service requests will appear here once you create one.',
+  worker: 'No workers match your search. Try a different category.',
+  rating: 'Ratings from users will show up after you complete jobs.',
+  'pending-worker': 'All worker registrations have been reviewed.',
+  'admin-request': 'No service requests have been submitted yet.',
+  summary: '',
+};
+
+export function emptyState(variant = 'request', subtitle) {
+  const div = document.createElement('div');
+  div.className = 'empty-state';
+  div.innerHTML = `
+    <div class="empty-state-icon">${EMPTY_ICONS[variant] || '📭'}</div>
+    <h3 class="empty-state-title">${EMPTY_TITLES[variant] || 'Nothing Here'}</h3>
+    <p class="empty-state-text">${subtitle || EMPTY_SUBTITLES[variant] || ''}</p>
+  `;
+  return div;
+}
+
 export function skeletonCard(variant = 'request', count = 3) {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < count; i++) {

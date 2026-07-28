@@ -1,5 +1,5 @@
 // frontend/assets/js/pages/admin/pending-workers.js
-import { skeletonCard } from "../../components/skeletonCard.js";
+import { skeletonCard, emptyState } from "../../components/skeletonCard.js";
 import { apiFetch } from "../../utils/api-client.js";
 import { ENDPOINTS } from "../../config/api.js";
 import { requireAuth } from "../../utils/auth.js";
@@ -18,7 +18,7 @@ async function loadPending() {
     const workers = Array.isArray(res?.data) ? res.data : [];
 
     if (!workers.length) {
-      container.innerHTML = "<p>No pending workers.</p>";
+      container.appendChild(emptyState('pending-worker'));
       return;
     }
 

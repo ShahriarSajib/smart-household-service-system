@@ -1,4 +1,4 @@
-import { skeletonCard } from "../../components/skeletonCard.js";
+import { skeletonCard, emptyState } from "../../components/skeletonCard.js";
 import { ENDPOINTS } from "../../config/api.js";
 import { apiFetch } from "../../utils/api-client.js";
 import { requireAuth } from "../../utils/auth.js";
@@ -20,7 +20,7 @@ async function loadRequests() {
     allRequests = Array.isArray(res?.data) ? res.data : [];
 
     if (!allRequests.length) {
-      container.innerHTML = "<p>No work requests found.</p>";
+      container.appendChild(emptyState('admin-request'));
       return;
     }
 

@@ -1,5 +1,5 @@
 import { createWorkerRequestCard } from "../../components/workerRequestCard.js";
-import { skeletonCard } from "../../components/skeletonCard.js";
+import { skeletonCard, emptyState } from "../../components/skeletonCard.js";
 import { ENDPOINTS } from "../../config/api.js";
 import { apiFetch } from "../../utils/api-client.js";
 import { currentUser, requireAuth } from "../../utils/auth.js";
@@ -23,7 +23,7 @@ async function loadRecent() {
     const res = await apiFetch(ENDPOINTS.REQUESTS.WORKER_REQUESTS(workerId));
 
     if (!Array.isArray(res) || res.length === 0) {
-      container.innerHTML = "<p>No assigned work.</p>";
+      container.appendChild(emptyState('request', 'No assigned work yet. Wait for a user to request your service.'));
       return;
     }
 

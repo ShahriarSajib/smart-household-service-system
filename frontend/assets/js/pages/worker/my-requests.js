@@ -1,5 +1,5 @@
 import { createWorkerRequestCard } from "../../components/workerRequestCard.js";
-import { skeletonCard } from "../../components/skeletonCard.js";
+import { skeletonCard, emptyState } from "../../components/skeletonCard.js";
 import { ENDPOINTS } from "../../config/api.js";
 import { apiFetch } from "../../utils/api-client.js";
 import { requireAuth } from "../../utils/auth.js";
@@ -53,7 +53,7 @@ function renderRequests() {
   });
 
   if (list.length === 0) {
-    container.innerHTML = "<p>No assigned requests.</p>";
+    container.appendChild(emptyState('request', 'No assigned requests yet.'));
     return;
   }
 

@@ -1,5 +1,5 @@
 import { createRequestCard } from '../../components/requestCard.js';
-import { skeletonCard } from '../../components/skeletonCard.js';
+import { skeletonCard, emptyState } from '../../components/skeletonCard.js';
 import { ENDPOINTS } from '../../config/api.js';
 import { apiFetch } from '../../utils/api-client.js';
 import { currentUser, requireAuth } from '../../utils/auth.js';
@@ -21,7 +21,7 @@ async function loadRecent() {
     );
 
     if (!Array.isArray(res) || res.length === 0) {
-      recentContainer.innerHTML = "<p>No recent requests found.</p>";
+      recentContainer.appendChild(emptyState('request', 'No recent requests found. Create your first service request!'));
       return;
     }
 
