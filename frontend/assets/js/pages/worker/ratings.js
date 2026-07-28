@@ -25,20 +25,15 @@ async function loadRatings() {
     const workerSummary = res.worker;
     const ratings = res.ratings || [];
 
-    summary.innerHTML = `
-      <div class="card p-md">
-        <h3>${workerSummary.name}</h3>
-        <p>⭐ Rating: <b>${workerSummary.rating?.toFixed(1) || "0.0"}</b></p>
-        <p>Total Reviews: ${workerSummary.rating_count}</p>
-      </div>
-    `;
+    summary.innerHTML = "";
+    summary.appendChild(createSummaryCard(workerSummary));
+
+    list.innerHTML = "";
 
     if (!ratings.length) {
       list.appendChild(emptyState('rating'));
       return;
     }
-
-    list.innerHTML = "";
 
     ratings.forEach(r => {
       const div = document.createElement("div");
@@ -59,6 +54,17 @@ async function loadRatings() {
     summary.innerHTML = `<p style="color:red">${err.message}</p>`;
     list.innerHTML = "";
   }
+}
+
+function createSummaryCard(workerSummary) {
+  const div = document.createElement("div");
+  div.className = "card p-md";
+  div.innerHTML = `
+    <h3>${workerSummary.name}</h3>
+    <p>⭐ Rating: <b>${workerSummary.rating?.toFixed(1) || "0.0"}</b></p>
+    <p>Total Reviews: ${workerSummary.rating_count}</p>
+  `;
+  return div;
 }
 
 loadRatings();

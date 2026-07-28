@@ -14,24 +14,30 @@ const workerId = worker.id;
 
 const container = document.getElementById("recentRequests");
 
+let isLoading = true;
+
 /* -------------------- LOAD RECENT REQUESTS -------------------- */
 async function loadRecent() {
+  isLoading = true;
   container.innerHTML = "";
   container.appendChild(skeletonCard('request', 3));
 
   try {
     const res = await apiFetch(ENDPOINTS.REQUESTS.WORKER_REQUESTS(workerId));
 
+    isLoading = false;
+    container.innerHTML = "";
+
     if (!Array.isArray(res) || res.length === 0) {
       container.appendChild(emptyState('request', 'No assigned work yet. Wait for a user to request your service.'));
       return;
     }
 
-    container.innerHTML = "";
     res.slice(0, 3).forEach((req) => {
       container.appendChild(createWorkerRequestCard(req));
     });
   } catch (err) {
+    isLoading = false;
     container.innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
   }
 }

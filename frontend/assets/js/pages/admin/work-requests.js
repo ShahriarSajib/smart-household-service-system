@@ -10,16 +10,20 @@ const sortSelect = document.getElementById("sortSelect");
 const filterSelect = document.getElementById("filterSelect");
 
 let allRequests = []; // store full list
+let isLoading = true;
 
 async function loadRequests() {
+  isLoading = true;
   container.innerHTML = "";
   container.appendChild(skeletonCard('admin-request', 5));
 
   try {
     const res = await apiFetch(ENDPOINTS.ADMIN.WORK_REQUESTS);
+    isLoading = false;
     allRequests = Array.isArray(res?.data) ? res.data : [];
 
     if (!allRequests.length) {
+      container.innerHTML = "";
       container.appendChild(emptyState('admin-request'));
       return;
     }
@@ -27,6 +31,7 @@ async function loadRequests() {
     renderRequests();
 
   } catch (err) {
+    isLoading = false;
     container.innerHTML = `<p style="color:var(--error)">${err.message || "Failed to load requests"}</p>`;
   }
 }

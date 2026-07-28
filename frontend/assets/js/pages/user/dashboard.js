@@ -11,7 +11,10 @@ const userId = user.id;
 
 const recentContainer = document.getElementById("recentRequests");
 
+let isLoading = true;
+
 async function loadRecent() {
+  isLoading = true;
   recentContainer.innerHTML = '';
   recentContainer.appendChild(skeletonCard('request', 3));
 
@@ -20,18 +23,20 @@ async function loadRecent() {
       ENDPOINTS.REQUESTS.USER_REQUESTS(userId)
     );
 
+    isLoading = false;
+    recentContainer.innerHTML = "";
+
     if (!Array.isArray(res) || res.length === 0) {
       recentContainer.appendChild(emptyState('request', 'No recent requests found. Create your first service request!'));
       return;
     }
-
-    recentContainer.innerHTML = "";
 
     res.slice(0, 3).forEach(req => {
       recentContainer.appendChild(createRequestCard(req));
     });
 
   } catch (err) {
+    isLoading = false;
     recentContainer.innerHTML = `<p>Error loading requests: ${err.message}</p>`;
   }
 }

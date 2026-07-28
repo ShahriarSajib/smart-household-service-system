@@ -18,6 +18,7 @@ async function loadPending() {
     const workers = Array.isArray(res?.data) ? res.data : [];
 
     if (!workers.length) {
+      container.innerHTML = "";
       container.appendChild(emptyState('pending-worker'));
       return;
     }

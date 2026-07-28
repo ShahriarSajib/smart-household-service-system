@@ -12,8 +12,10 @@ const sortSelect = document.getElementById("sortSelect");
 const filterSelect = document.getElementById("filterSelect");
 
 let allRequests = []; // store original list
+let isLoading = true;
 
 async function loadRequests() {
+  isLoading = true;
   container.innerHTML = "";
   container.appendChild(skeletonCard('request', 5));
 
@@ -21,11 +23,13 @@ async function loadRequests() {
     const res = await apiFetch(ENDPOINTS.REQUESTS.USER_REQUESTS(user.id));
     console.log("Fetched user requests:", res);
 
+    isLoading = false;
     allRequests = Array.isArray(res) ? res : [];
 
     renderRequests();
 
   } catch (err) {
+    isLoading = false;
     container.innerHTML = `<p style="color:red">${err.message}</p>`;
   }
 }
@@ -49,6 +53,8 @@ function renderRequests() {
   });
 
   if (list.length === 0) {
+    if (isLoading) return;
+    container.innerHTML = "";
     container.appendChild(emptyState('request'));
     return;
   }
