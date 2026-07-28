@@ -91,55 +91,116 @@ FixMate is a full-stack web platform that connects household users with verified
 | **Worker** | Register with a skill category, accept/reject assigned jobs, update availability (Available/Busy/Offline), update GPS location, view ratings |
 | **Admin** | Approve/reject new worker registrations, view/manage all service requests site-wide, update own profile |
 
-### Role Flow Diagrams
+### Role Flows
 
-```mermaid
-flowchart TD
-    subgraph User["👤 User Flow"]
-        U1[Register / Login] --> U2[Create Service Request<br>with category, location, description & optional photo]
-        U2 --> U3{Select Worker?}
-        U3 -->|Auto-assign| U4[System finds nearest<br>available worker via<br>Haversine formula]
-        U3 -->|Manual| U5[Browse & select<br>a specific worker]
-        U4 --> U6[Request status: Pending]
-        U5 --> U6
-        U6 --> U7{Worker Response}
-        U7 -->|Accept| U8[Worker assigned & notified]
-        U7 -->|Reject| U9[System re-assigns<br>to next nearest worker]
-        U8 --> U10[Service in progress]
-        U10 --> U11[Worker marks completed]
-        U11 --> U12[Rate worker 1-5<br>with optional comment]
-        U12 --> U13[Request closed]
-        U6 -->|Cancel anytime| U13
-    end
-
-    subgraph Worker["🔧 Worker Flow"]
-        W1[Register with<br>skill category] --> W2{Admin Approval}
-        W2 -->|Rejected| W3[Registration deleted]
-        W2 -->|Approved| W4[Status: Available]
-        W4 --> W5[Update GPS location<br>& availability]
-        W5 --> W6[Receive assigned request<br>from user / system]
-        W6 --> W7{Accept or Reject?}
-        W7 -->|Accept| W8[Service in progress]
-        W7 -->|Reject| W9[Request goes back<br>to pool]
-        W8 --> W10[Complete service]
-        W10 --> W11[Mark request completed]
-        W11 --> W12[Receive rating<br>from user]
-        W12 --> W5
-        W4 --> W13[View ratings &<br>profile summary]
-    end
-
-    subgraph Admin["🛡️ Admin Flow"]
-        A1[Login] --> A2{Dashboard}
-        A2 --> A3[View Pending Workers]
-        A2 --> A4[View All Service Requests]
-        A2 --> A5[Update Own Profile]
-        A3 --> A6{Approve or Reject?}
-        A6 -->|Approve| A7[Worker status set to<br>Available]
-        A6 -->|Reject| A8[Worker deleted from system]
-        A4 --> A9[Monitor all requests<br>across all statuses]
-        A7 --> A10[Worker can now<br>receive assignments]
-    end
+**User Flow**
 ```
+Register / Login
+       │
+       ▼
+Create Service Request (category, location, description, optional photo)
+       │
+       ▼
+  ┌────┴────┐
+  │         │
+  ▼         ▼
+Auto      Manual Select
+Assign    a specific worker
+  │         │
+  └────┬────┘
+       │
+       ▼
+Request Pending ───→ Cancel (anytime)
+       │
+       ▼
+  Worker Response
+  ┌────┴────┐
+  │         │
+  ▼         ▼
+Accept    Reject
+  │         │
+  │    System re-assigns
+  │    to next nearest
+  │    worker
+  │
+  ▼
+Service in Progress
+       │
+       ▼
+Worker marks Completed
+       │
+       ▼
+Rate Worker (1-5) → Request Closed
+```
+
+**Worker Flow**
+```
+Register with skill category
+       │
+       ▼
+  Admin Approval
+  ┌────┴────┐
+  │         │
+  ▼         ▼
+Approved  Rejected
+  │         │
+  │    Registration deleted
+  │
+  ▼
+Status: Available
+  │
+  ├────────────────────┐
+  │                    │
+  ▼                    ▼
+Update GPS /        View Ratings
+Availability        & Profile
+  │
+  ▼
+Receive Assigned Request
+  │
+  ▼
+  ┌────┴────┐
+  │         │
+  ▼         ▼
+Accept    Reject
+  │         │
+  │    Request returns
+  │    to assignment pool
+  │
+  ▼
+Service in Progress
+       │
+       ▼
+Mark Completed
+       │
+       ▼
+Receive Rating from User
+       │
+       ▼
+Back to Available
+```
+
+**Admin Flow**
+```
+Login
+  │
+  ▼
+  ┌───────────┬───────────┐
+  │           │           │
+  ▼           ▼           ▼
+View       View All    Update Own
+Pending    Service     Profile
+Workers    Requests
+  │           │
+  ▼           ▼
+┌───┴───┐   Monitor all
+│       │   requests
+Approve Reject across all
+  │       │  statuses
+  ▼       ▼
+Worker   Worker
+set to   deleted
+Available
 
 ---
 
