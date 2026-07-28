@@ -61,7 +61,7 @@ function createSummaryCard(workerSummary) {
   div.className = "card p-md";
   div.innerHTML = `
     <h3>${workerSummary.name}</h3>
-    <p>⭐ Rating: <b>${workerSummary.rating?.toFixed(1) || "0.0"}</b></p>
+    <p>⭐ Rating: <b>${(Number(workerSummary.rating) || 0).toFixed(1)}</b></p>
     <p>Total Reviews: ${workerSummary.rating_count}</p>
   `;
   return div;
