@@ -1,4 +1,4 @@
-import { ENDPOINTS } from "../../config/api.js";
+import { API_BASE_URL, ENDPOINTS } from "../../config/api.js";
 import { apiFetch } from "../../utils/api-client.js";
 import { requireAuth } from "../../utils/auth.js";
 import { getUser, saveUser } from "../../utils/storage.js";
@@ -54,7 +54,7 @@ form.addEventListener("submit", async (e) => {
 
   try {
     const res = await fetch(
-      `http://localhost:5000/api${ENDPOINTS.USER.UPDATE_PROFILE(user.id)}`,
+      `${API_BASE_URL}${ENDPOINTS.USER.UPDATE_PROFILE(user.id)}`,
       {
         method: "PUT",
         headers: {
