@@ -366,6 +366,50 @@ select.form-control option {
 }
 
 /* ----------------------------------------------------
+   SKELETON LOADING
+---------------------------------------------------- */
+.skeleton-line {
+  border-radius: 8px;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-title {
+  height: 20px;
+}
+
+.skeleton-text {
+  height: 12px;
+}
+
+.skeleton-text-sm {
+  height: 10px;
+}
+
+.skeleton-button {
+  height: 36px;
+  border-radius: 8px;
+}
+
+.skeleton-image-block {
+  flex-shrink: 0;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* ----------------------------------------------------
    IMAGE MODALS / VIEWER
 ---------------------------------------------------- */
 .image-viewer-modal,

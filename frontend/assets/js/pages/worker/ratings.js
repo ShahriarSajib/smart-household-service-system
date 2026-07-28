@@ -1,3 +1,4 @@
+import { skeletonCard } from "../../components/skeletonCard.js";
 import { ENDPOINTS } from "../../config/api.js";
 import { apiFetch } from "../../utils/api-client.js";
 import { currentUser, requireAuth } from "../../utils/auth.js";
@@ -11,13 +12,16 @@ const summary = document.getElementById("summary");
 const list = document.getElementById("ratingsContainer");
 
 async function loadRatings() {
+  summary.innerHTML = "";
+  summary.appendChild(skeletonCard('summary', 1));
+  list.innerHTML = "";
+  list.appendChild(skeletonCard('rating', 3));
+
   try {
-    // ✔ Correct endpoint — now passes worker.id
     const res = await apiFetch(
       ENDPOINTS.RATINGS.GET_WORKER_RATINGS(worker.id)
     );
 
-    // Backend returns array & summary object directly
     const workerSummary = res.worker;
     const ratings = res.ratings || [];
 
@@ -55,6 +59,7 @@ async function loadRatings() {
 
   } catch (err) {
     summary.innerHTML = `<p style="color:red">${err.message}</p>`;
+    list.innerHTML = "";
   }
 }
 

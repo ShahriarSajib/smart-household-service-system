@@ -1,4 +1,5 @@
 // frontend/assets/js/pages/admin/pending-workers.js
+import { skeletonCard } from "../../components/skeletonCard.js";
 import { apiFetch } from "../../utils/api-client.js";
 import { ENDPOINTS } from "../../config/api.js";
 import { requireAuth } from "../../utils/auth.js";
@@ -9,7 +10,8 @@ requireAuth("admin");
 const container = document.getElementById("pendingWorkers");
 
 async function loadPending() {
-  container.innerHTML = "<p>Loading...</p>";
+  container.innerHTML = "";
+  container.appendChild(skeletonCard('pending-worker', 5));
 
   try {
     const res = await apiFetch(ENDPOINTS.ADMIN.PENDING_WORKERS);

@@ -1,4 +1,5 @@
 
+import { skeletonCard } from "../../components/skeletonCard.js";
 import { apiFetch } from "../../utils/api-client.js";
 import { ENDPOINTS } from "../../config/api.js";
 import { requireAuth } from "../../utils/auth.js";
@@ -8,7 +9,8 @@ requireAuth("admin");
 const summary = document.getElementById("summary");
 
 async function loadSummary() {
-  summary.innerHTML = "<p>Loading...</p>";
+  summary.innerHTML = "";
+  summary.appendChild(skeletonCard('summary', 2));
 
   try {
     // use endpoints defined in config

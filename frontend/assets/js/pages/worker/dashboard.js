@@ -1,4 +1,5 @@
 import { createWorkerRequestCard } from "../../components/workerRequestCard.js";
+import { skeletonCard } from "../../components/skeletonCard.js";
 import { ENDPOINTS } from "../../config/api.js";
 import { apiFetch } from "../../utils/api-client.js";
 import { currentUser, requireAuth } from "../../utils/auth.js";
@@ -15,6 +16,9 @@ const container = document.getElementById("recentRequests");
 
 /* -------------------- LOAD RECENT REQUESTS -------------------- */
 async function loadRecent() {
+  container.innerHTML = "";
+  container.appendChild(skeletonCard('request', 3));
+
   try {
     const res = await apiFetch(ENDPOINTS.REQUESTS.WORKER_REQUESTS(workerId));
 

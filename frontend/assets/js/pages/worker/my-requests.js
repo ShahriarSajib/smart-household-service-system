@@ -1,4 +1,5 @@
 import { createWorkerRequestCard } from "../../components/workerRequestCard.js";
+import { skeletonCard } from "../../components/skeletonCard.js";
 import { ENDPOINTS } from "../../config/api.js";
 import { apiFetch } from "../../utils/api-client.js";
 import { requireAuth } from "../../utils/auth.js";
@@ -19,7 +20,8 @@ const filterSelect = document.getElementById("filterSelect");
 let allRequests = [];
 
 async function loadRequests() {
-  container.innerHTML = "<p>Loading...</p>";
+  container.innerHTML = "";
+  container.appendChild(skeletonCard('request', 5));
 
   try {
     const res = await apiFetch(ENDPOINTS.REQUESTS.WORKER_REQUESTS(workerId));
