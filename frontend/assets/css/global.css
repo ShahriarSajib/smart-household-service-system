@@ -124,6 +124,12 @@ a:hover {
   color: var(--primary);
 }
 
+.logo-icon {
+  height: 28px;
+  width: 28px;
+  margin-right: 6px;
+}
+
 .nav-links {
   display: flex;
   gap: 2rem;

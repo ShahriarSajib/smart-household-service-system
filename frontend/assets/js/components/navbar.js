@@ -37,7 +37,7 @@ export function renderNavbarInto(targetId = 'navbar-dynamic') {
   const brand = document.createElement('div');
   brand.innerHTML = `
     <a href="/index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none">
-      <span style="font-size:20px">🔧</span>
+      <img src="/assets/images/fixmate-logo.png" alt="FixMate" style="height:24px;width:24px">
       <strong style="color:var(--primary)">&nbsp;FixMate</strong>
     </a>
   `;
