@@ -4,11 +4,18 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { query } from "../config/db.js";
 import mailer from "../utils/mailer.js";
+import logger from "../utils/logger.js";
 import { error, success } from "../utils/responseHelper.js";
 
 dotenv.config();
 
 const SALT = 10;
+
+const getBaseUrl = (req) => {
+  const proto = req.headers["x-forwarded-proto"] || req.protocol;
+  const host = req.headers["x-forwarded-host"] || req.get("host");
+  return process.env.BASE_URL || `${proto}://${host}`;
+};
 
 // Register User
 export const registerUser = async (req, res) => {
@@ -36,7 +43,7 @@ export const registerUser = async (req, res) => {
     );
 
     // send verification email (fire-and-forget to avoid blocking response)
-    const verifyLink = `${process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`}/api/auth/verify-email?token=${token}`;
+    const verifyLink = `${getBaseUrl(req)}/api/auth/verify-email?token=${token}`;
     mailer.sendMail({
       to: email,
       subject: "Verify your FixMate account",
@@ -44,7 +51,7 @@ export const registerUser = async (req, res) => {
              <p>Thank you for registering. Please verify your email by clicking below:</p>
              <a href="${verifyLink}">Verify Email</a>
              <p>This link expires in 24 hours.</p>`,
-    }).catch(err => console.error("Failed to send verification email to user:", err.message));
+    }).catch(err => logger.error("Failed to send verification email to user: " + err.message));
 
     res.status(201).json(success("User registered successfully. Please verify your email."));
   } catch (err) {
@@ -81,7 +88,7 @@ export const registerWorker = async (req, res) => {
     );
 
     // send verification email (fire-and-forget to avoid blocking response)
-    const verifyLink = `${process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`}/api/auth/verify-email?token=${token}`;
+    const verifyLink = `${getBaseUrl(req)}/api/auth/verify-email?token=${token}`;
     mailer.sendMail({
       to: email,
       subject: "Verify your FixMate worker account",
@@ -89,7 +96,7 @@ export const registerWorker = async (req, res) => {
              <p>Thanks for registering as a worker. Please verify your email by clicking below:</p>
              <a href="${verifyLink}">Verify Email</a>
              <p>This link expires in 24 hours.</p>`,
-    }).catch(err => console.error("Failed to send verification email to worker:", err.message));
+    }).catch(err => logger.error("Failed to send verification email to worker: " + err.message));
 
     res.status(201).json(success("Worker registered successfully (Pending Admin Approval). Please verify your email."));
   } catch (err) {
@@ -246,7 +253,7 @@ export const resendVerificationEmail = async (req, res) => {
      );
 
     // Send mail (fire-and-forget to avoid blocking response)
-    const verifyLink = `${process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`}/api/auth/verify-email?token=${token}`;
+    const verifyLink = `${getBaseUrl(req)}/api/auth/verify-email?token=${token}`;
     mailer.sendMail({
       to: email,
       subject: "Resend: Verify your FixMate account",
@@ -254,7 +261,7 @@ export const resendVerificationEmail = async (req, res) => {
              <p>You requested a new verification link. Please verify by clicking below:</p>
              <a href="${verifyLink}">Verify Email</a>
              <p>This link expires in 24 hours.</p>`
-    }).catch(err => console.error("Failed to resend verification email:", err.message));
+    }).catch(err => logger.error("Failed to resend verification email: " + err.message));
 
     res.json(success("Verification email resent successfully"));
   } catch (err) {
@@ -295,13 +302,8 @@ export const forgotPassword = async (req, res) => {
     );
 
 
-    // Build reset link
-    const FRONTEND_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
-
-    const resetLink = `${FRONTEND_URL}/pages/auth/reset-password.html?token=${token}`;
-
-
     // Send email (fire-and-forget to avoid blocking response)
+    const resetLink = `${getBaseUrl(req)}/pages/auth/reset-password.html?token=${token}`;
     mailer.sendMail({
       to: email,
       subject: "Reset your FixMate password",
@@ -309,7 +311,7 @@ export const forgotPassword = async (req, res) => {
              <p>We received a request to reset your password. Click below to set a new one:</p>
              <a href="${resetLink}">Reset Password</a>
              <p>This link expires in 30 minutes. If you didn't request this, please ignore.</p>`
-    }).catch(err => console.error("Failed to send password reset email:", err.message));
+    }).catch(err => logger.error("Failed to send password reset email: " + err.message));
 
     res.json(success("Password reset link sent to your email."));
   } catch (err) {
