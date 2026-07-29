@@ -4,18 +4,11 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { query } from "../config/db.js";
 import mailer from "../utils/mailer.js";
-import logger from "../utils/logger.js";
 import { error, success } from "../utils/responseHelper.js";
 
 dotenv.config();
 
 const SALT = 10;
-
-const getBaseUrl = (req) => {
-  const proto = req.headers["x-forwarded-proto"] || req.protocol;
-  const host = req.headers["x-forwarded-host"] || req.get("host");
-  return process.env.BASE_URL || `${proto}://${host}`;
-};
 
 const getBaseUrl = (req) => {
   const proto = req.headers["x-forwarded-proto"] || req.protocol;
@@ -48,9 +41,6 @@ export const registerUser = async (req, res) => {
       [result.insertId, token]
     );
 
-    // send verification email (fire-and-forget to avoid blocking response)
-    const verifyLink = `${getBaseUrl(req)}/api/auth/verify-email?token=${token}`;
-    mailer.sendMail({
     // send verification email (fire-and-forget to avoid blocking response)
     const verifyLink = `${getBaseUrl(req)}/api/auth/verify-email?token=${token}`;
     mailer.sendMail({
@@ -96,9 +86,6 @@ export const registerWorker = async (req, res) => {
       [result.insertId, token]
     );
 
-    // send verification email (fire-and-forget to avoid blocking response)
-    const verifyLink = `${getBaseUrl(req)}/api/auth/verify-email?token=${token}`;
-    mailer.sendMail({
     // send verification email (fire-and-forget to avoid blocking response)
     const verifyLink = `${getBaseUrl(req)}/api/auth/verify-email?token=${token}`;
     mailer.sendMail({
@@ -267,9 +254,6 @@ export const resendVerificationEmail = async (req, res) => {
     // Send mail (fire-and-forget to avoid blocking response)
     const verifyLink = `${getBaseUrl(req)}/api/auth/verify-email?token=${token}`;
     mailer.sendMail({
-    // Send mail (fire-and-forget to avoid blocking response)
-    const verifyLink = `${getBaseUrl(req)}/api/auth/verify-email?token=${token}`;
-    mailer.sendMail({
       to: email,
       subject: "Resend: Verify your FixMate account",
       html: `<p>Hello ${account.name},</p>
@@ -317,9 +301,6 @@ export const forgotPassword = async (req, res) => {
     );
 
 
-    // Send email (fire-and-forget to avoid blocking response)
-    const resetLink = `${getBaseUrl(req)}/pages/auth/reset-password.html?token=${token}`;
-    mailer.sendMail({
     // Send email (fire-and-forget to avoid blocking response)
     const resetLink = `${getBaseUrl(req)}/pages/auth/reset-password.html?token=${token}`;
     mailer.sendMail({
