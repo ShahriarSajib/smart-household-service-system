@@ -1,5 +1,7 @@
 # FixMate – Smart Household Service System
 
+> **Live:** [https://fixmate-gci6.onrender.com](https://fixmate-gci6.onrender.com)
+
 FixMate is a full-stack web platform that connects household users with verified local service professionals. Users can create service requests, workers can manage assigned jobs, and admins supervise platform activity. The platform features **geo-aware auto-assignment** using the Haversine formula to find the nearest available worker.
 
 ---
