@@ -41,6 +41,15 @@ html, body {
   overflow-x: hidden;
 }
 
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
 
 
 /* ----------------------------------------------------
@@ -644,8 +653,80 @@ select.form-control option {
 }
 
 /* ----------------------------------------------------
+   FOOTER
+---------------------------------------------------- */
+.footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  padding: 2.5rem 1.5rem 1.5rem;
+  margin-top: auto;
+}
+
+.footer .container {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 2rem;
+}
+
+.footer-brand .logo {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.footer-brand p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  max-width: 260px;
+  line-height: 1.6;
+}
+
+.footer h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.footer ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.footer ul a {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.footer ul a:hover {
+  color: var(--primary);
+}
+
+.footer-bottom {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ----------------------------------------------------
    RESPONSIVE
 ---------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .footer .container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
 @media (max-width: 768px) {
   .nav-toggle { display: block; }
 
