@@ -43,11 +43,11 @@ FixMate is a full-stack web platform that connects household users with verified
 | **Backend**   | Node.js with Express.js 5 (ES Modules)                      |
 | **Database**  | MySQL via `mysql2/promise` (connection pool)                |
 | **Auth**      | JWT (`jsonwebtoken`) with server-side token blacklist       |
-| **Image Upload** | Base64-encoded strings (stored as MySQL LONGBLOB)       |
+| **Image Upload** | Cloudinary CDN (via `multer-storage-cloudinary`)       |
 | **Email**     | Nodemailer with Gmail SMTP                                  |
 | **Logging**   | Winston + `winston-daily-rotate-file`                       |
 | **Password Hashing** | bcrypt                                                |
-| **File Upload Middleware** | Multer (in-memory storage for BLOB)            |
+| **File Upload Middleware** | Multer + Cloudinary Storage                   |
 | **Other**     | `cors`, `dotenv`, Haversine formula in SQL for geo-distance |
 
 ---
@@ -210,7 +210,7 @@ Available
 
 ### User Features
 - Register and login (JWT-based)
-- Create service requests with description, location (lat/lng), category, optional problem image (Base64)
+- Create service requests with description, location (lat/lng), category, optional problem image (uploaded to Cloudinary)
 - **Auto-assignment** of the nearest available worker using Haversine distance formula in SQL
 - Option to **manually select** a specific worker
 - View, track, and cancel own requests
@@ -304,6 +304,7 @@ smart-household-service-system/
 │   │       │   └── categories.js # Service categories
 │   │       ├── components/
 │   │       │   ├── navbar.js
+│   │       │   ├── footer.js
 │   │       │   ├── requestCard.js
 │   │       │   ├── skeletonCard.js
 │   │       │   ├── starRating.js
@@ -427,6 +428,10 @@ DB_NAME=fixmate_db
 JWT_SECRET=your_jwt_secret_key
 BASE_URL=http://localhost:5000
 
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_SECURE=false
@@ -539,7 +544,7 @@ Authorization: Bearer <jwt_token>
 | role            | ENUM         | user / admin                    |
 | phone           | VARCHAR(20)  | Phone number                    |
 | email_verified  | TINYINT(1)   | 0 or 1                          |
-| profilePic      | LONGBLOB     | Base64 profile picture          |
+| profilePic      | TEXT         | Cloudinary URL                   |
 | created_at      | TIMESTAMP    | Auto-generated                  |
 
 ### `workers`
@@ -558,7 +563,7 @@ Authorization: Bearer <jwt_token>
 | rating_count    | INT          | Number of ratings               |
 | phone           | VARCHAR(20)  | Phone number                    |
 | email_verified  | TINYINT(1)   | 0 or 1                          |
-| profilePic      | LONGBLOB     | Base64 profile picture          |
+| profilePic      | TEXT         | Cloudinary URL                   |
 | created_at      | TIMESTAMP    | Auto-generated                  |
 
 ### `service_requests`
@@ -574,6 +579,7 @@ Authorization: Bearer <jwt_token>
 | status            | ENUM         | Pending / Assigned / Accepted / Cancelled / Completed |
 | assigned_worker_id| INT (FK)     | References workers.id           |
 | service_type_id   | INT (FK)     | References service_types.id     |
+| problem_pic       | TEXT         | Cloudinary URL of problem image |
 | user_has_rated    | TINYINT(1)   | 0 or 1                          |
 | created_at        | TIMESTAMP    | Auto-generated                  |
 
@@ -622,9 +628,10 @@ The auto-assignment logic in `serviceController.js` uses a raw SQL query with th
 ```
 
 ### Image Handling
-- Profile pictures stored as **MySQL LONGBLOB**
-- Backend converts to Base64 data URIs before sending to the frontend
-- Problem images on service requests sent as Base64 strings
+- Images uploaded to **Cloudinary CDN** via `multer-storage-cloudinary`
+- Profile pictures and problem images stored as Cloudinary URLs in `TEXT` columns
+- Automatic image resizing (max 1000×1000) and quality optimization
+- Accepted formats: jpg, jpeg, png, gif, webp
 
 ### Email Verification Flow
 1. User registers → token inserted into `tokens` table → verification email sent
