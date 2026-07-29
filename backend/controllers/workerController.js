@@ -27,7 +27,7 @@ export const getWorkerRequests = async (req, res) => {
     const { id } = req.params;
 
     const [requests] = await query(
-      `SELECT sr.*, u.name AS user_name, u.email AS user_email
+      `SELECT sr.*, u.name AS user_name, u.email AS user_email, u.phone AS user_phone
        FROM service_requests sr
        JOIN users u ON sr.user_id = u.id
        WHERE sr.assigned_worker_id = ?

@@ -44,32 +44,4 @@ async function loadRecent() {
 
 loadRecent();
 
-/* -------------------- AVAILABILITY FORM -------------------- */
 
-const openBtn = document.getElementById("openAvailabilityForm");
-const formBox = document.getElementById("availabilityForm");
-const submitBtn = document.getElementById("submitAvailability");
-
-// Show/Hide form
-openBtn.onclick = () => {
-  formBox.style.display = formBox.style.display === "none" ? "block" : "none";
-};
-
-// Update availability
-submitBtn.onclick = async () => {
-  const selected = document.querySelector("input[name='availability']:checked");
-
-  if (!selected) return toast.error("Please select an availability option!");
-
-  try {
-    await apiFetch(ENDPOINTS.WORKERS.UPDATE_STATUS(workerId), {
-      method: "PUT",
-      body: { availability: selected.value },
-    });
-
-    toast.success("Availability updated!");
-    formBox.style.display = "none";
-  } catch (err) {
-    toast.error(err.message);
-  }
-};
