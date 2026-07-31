@@ -68,13 +68,13 @@ const testDB = async () => {
 };
 testDB();
 
-// Test SMTP transporter
+// Test mail provider
 const testMailer = async () => {
   try {
-    await mailer.transporter.verify();
-    logger.info("SMTP transporter ready");
+    await mailer.verify();
+    logger.info("Mail provider ready");
   } catch (err) {
-    logger.warn("SMTP transporter verification failed: " + err.message);
+    logger.warn("Mail provider verification failed: " + err.message);
   }
 };
 testMailer();
